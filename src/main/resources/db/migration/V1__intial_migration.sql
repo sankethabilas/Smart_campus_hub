@@ -1,4 +1,4 @@
-CREATE TABLE user (
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
@@ -49,8 +49,8 @@ CREATE TABLE booking (
 
     FOREIGN KEY (asset_id) REFERENCES asset(id),
     FOREIGN KEY (location_id) REFERENCES location(id),
-    FOREIGN KEY (requested_by) REFERENCES user(id),
-    FOREIGN KEY (reviewed_by) REFERENCES user(id)
+    FOREIGN KEY (requested_by) REFERENCES users(id),
+    FOREIGN KEY (reviewed_by) REFERENCES users(id)
 );
 
 CREATE TABLE ticket (
@@ -71,10 +71,10 @@ CREATE TABLE ticket (
     resolved_at TIMESTAMP NULL,
     closed_at TIMESTAMP NULL,
 
-    FOREIGN KEY (reported_by) REFERENCES user(id),
+    FOREIGN KEY (reported_by) REFERENCES users(id),
     FOREIGN KEY (asset_id) REFERENCES asset(id),
     FOREIGN KEY (location_id) REFERENCES location(id),
-    FOREIGN KEY (assigned_to) REFERENCES user(id)
+    FOREIGN KEY (assigned_to) REFERENCES users(id)
 );
 
 CREATE TABLE ticket_attachment (
@@ -87,7 +87,7 @@ CREATE TABLE ticket_attachment (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (ticket_id) REFERENCES ticket(id),
-    FOREIGN KEY (uploaded_by) REFERENCES user(id)
+    FOREIGN KEY (uploaded_by) REFERENCES users(id)
 );
 
 CREATE TABLE ticket_comment (
@@ -99,7 +99,7 @@ CREATE TABLE ticket_comment (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (ticket_id) REFERENCES ticket(id),
-    FOREIGN KEY (commented_by) REFERENCES user(id)
+    FOREIGN KEY (commented_by) REFERENCES users(id)
 );
 
 CREATE TABLE notification (
@@ -112,7 +112,7 @@ CREATE TABLE notification (
     reference_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE audit (
@@ -125,5 +125,5 @@ CREATE TABLE audit (
     new_value TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
