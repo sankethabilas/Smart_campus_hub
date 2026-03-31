@@ -2,8 +2,8 @@ spring:
   application:
     name: smart_campus_Operation-hub
   datasource:
-    url: jdbc:mysql://localhost:3306/campus?createDatabaseIfNotExist=true
-    username: root
-    password: "Abi0021@"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: true
