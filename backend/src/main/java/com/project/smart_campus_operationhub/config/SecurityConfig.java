@@ -11,12 +11,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configure(http)) // Enables CORS integration
-            .csrf(csrf -> csrf.disable())       // Disables CSRF for easy testing
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/test").permitAll() // Whitelist our test endpoint
-                .anyRequest().authenticated()
-            );
+                .cors(cors -> cors.configure(http)) // Enables CORS integration
+                .csrf(csrf -> csrf.disable()) // Disables CSRF for easy testing
+                .authorizeHttpRequests(auth -> auth
+                    .anyRequest().permitAll() //ensure every endpoint accessible without authentication
+                        );
         return http.build();
     }
 }
