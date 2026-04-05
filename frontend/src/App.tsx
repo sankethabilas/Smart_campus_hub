@@ -4,13 +4,15 @@ import Footer from './components/layout/Footer';
 import Hero from './components/home/Hero';
 import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
+import CreateTicket from './components/ticket/CreateTicket';
 
 function App() {
   const [, setIsBackendConnected] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home');
 
   // Background hook to verify connection for Footer LED
   useEffect(() => {
-    fetch('http://localhost:8080/api/test')
+    fetch('http://localhost:8081/api/test')
       .then((res) => {
         if (res.ok) setIsBackendConnected(true);
       })
@@ -24,14 +26,16 @@ function App() {
 
       {/* Main Content Area */}
       <main className="flex-grow">
-        
-        {/* Sections */}
-        <Hero />
-        
-        <Features />
-        
-        <HowItWorks />
-        
+        {currentPage === 'home' ? (
+          <>
+            {/* Home Sections */}
+            <Hero setCurrentPage={setCurrentPage} />
+            <Features />
+            <HowItWorks />
+          </>
+        ) : currentPage === 'create-ticket' ? (
+          <CreateTicket />
+        ) : null}
       </main>
 
       {/* Optional: Modifying Footer prop dynamically to pass connection state, 
