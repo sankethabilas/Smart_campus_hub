@@ -22,7 +22,7 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100 overflow-x-hidden transition-colors duration-300">
       {/* Top Navigation */}
-      <Navbar />
+      <Navbar setCurrentPage={setCurrentPage} currentPage={currentPage} />
 
       {/* Main Content Area */}
       <main className="flex-grow">
