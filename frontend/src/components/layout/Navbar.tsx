@@ -3,7 +3,7 @@ import { Building2, Moon, Sun } from 'lucide-react';
 export default function Navbar() {
   const navLinks = [
     { name: 'Home', href: '#' },
-    { name: 'Facilities', href: '#' },
+    { name: 'Resources', href: '#' },
     { name: 'Bookings', href: '#' },
     { name: 'Tickets', href: '#' },
     { name: 'Dashboard', href: '#' },
