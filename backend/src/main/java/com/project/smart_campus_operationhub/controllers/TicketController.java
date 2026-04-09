@@ -1,17 +1,30 @@
 package com.project.smart_campus_operationhub.controllers;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.project.smart_campus_operationhub.dtos.TicketResponseDTO;
+import com.project.smart_campus_operationhub.services.TicketService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
-@CrossOrigin(origins = "*") 
 public class TicketController {
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello this is TicketController";
+    private final TicketService ticketService;
+
+    public TicketController(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
+
+    // GET ALL
+    @GetMapping
+    public List<TicketResponseDTO> getAllTickets() {
+        return ticketService.getAllTickets();
+    }
+
+    // GET BY ID
+    @GetMapping("/{id}")
+    public TicketResponseDTO getTicketById(@PathVariable Integer id) {
+        return ticketService.getTicketById(id);
     }
 }
