@@ -29,7 +29,6 @@ public class Users {
     @Column(name = "email")
     private String email;
 
-    @Size(max = 50)
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
