@@ -31,7 +31,7 @@ public class Users {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.USER;
 
     @Size(max = 255)
     @Column(name = "password")
