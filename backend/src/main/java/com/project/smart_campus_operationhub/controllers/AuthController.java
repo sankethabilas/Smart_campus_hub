@@ -1,7 +1,9 @@
 package com.project.smart_campus_operationhub.controllers;
 
+import com.project.smart_campus_operationhub.dtos.JwtResponse;
 import com.project.smart_campus_operationhub.dtos.LoginRequest;
 import com.project.smart_campus_operationhub.repositories.UserRepository;
+import com.project.smart_campus_operationhub.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,9 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
         var user = userRepository.findByEmail(request.getEmail()).orElse(null);
@@ -32,6 +35,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return ResponseEntity.ok().build();
+        var token = jwtService.generateToken(request.getEmail());
+
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }
