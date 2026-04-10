@@ -1,5 +1,6 @@
 package com.project.smart_campus_operationhub.controllers;
 
+import com.project.smart_campus_operationhub.dtos.TicketRequestDTO;
 import com.project.smart_campus_operationhub.dtos.TicketResponseDTO;
 import com.project.smart_campus_operationhub.services.TicketService;
 import org.springframework.web.bind.annotation.*;
@@ -26,5 +27,11 @@ public class TicketController {
     @GetMapping("/{id}")
     public TicketResponseDTO getTicketById(@PathVariable Integer id) {
         return ticketService.getTicketById(id);
+    }
+
+    // CREATE TICKET
+    @PostMapping
+    public TicketResponseDTO createTicket(@RequestBody TicketRequestDTO request) {
+        return ticketService.createTicket(request);
     }
 }
