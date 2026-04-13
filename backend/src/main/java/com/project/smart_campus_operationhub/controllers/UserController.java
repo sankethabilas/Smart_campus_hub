@@ -3,6 +3,7 @@ package com.project.smart_campus_operationhub.controllers;
 import com.project.smart_campus_operationhub.dtos.RegisterUserRequest;
 import com.project.smart_campus_operationhub.dtos.UpdateUserRequest;
 import com.project.smart_campus_operationhub.dtos.UserDto;
+import com.project.smart_campus_operationhub.entities.Role;
 import com.project.smart_campus_operationhub.mappers.UserMapper;
 import com.project.smart_campus_operationhub.repositories.UserRepository;
 import jakarta.validation.Valid;
