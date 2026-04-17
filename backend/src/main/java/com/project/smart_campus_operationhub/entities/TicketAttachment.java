@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; //to avoid lazy errors
 
 import java.time.Instant;
 
@@ -11,6 +12,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "ticket_attachment", schema = "campus")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class TicketAttachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +39,5 @@ public class TicketAttachment {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "uploaded_at")
     private Instant uploadedAt;
-
 
 }
