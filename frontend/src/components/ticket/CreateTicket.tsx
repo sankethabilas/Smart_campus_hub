@@ -1,53 +1,102 @@
 import React, { useState } from "react";
+import ticketService from "../../services/ticketService";
+import type { TicketResponseDTO } from "../../services/ticketService";
+import attachmentService from "../../services/attachmentService";
 
 interface TicketFormData {
   title: string;
   description: string;
-  category: string;
   priority: string;
-  resourceLocation: string;
-  createdBy: string;
-  preferredContactInfo: string;
+  contact: string;
+  reportedById: number;
+  locationId?: number;
+  assetId?: number;
 }
 
 const CreateTicket: React.FC = () => {
   const [formData, setFormData] = useState<TicketFormData>({
     title: "",
     description: "",
-    category: "IT",
     priority: "Medium",
-    resourceLocation: "",
-    createdBy: "",
-    preferredContactInfo: "",
+    contact: "",
+    reportedById: 1, // Default user ID - should come from auth context
+    locationId: undefined,
+    assetId: undefined,
   });
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [createdTicket, setCreatedTicket] = useState<TicketResponseDTO | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.currentTarget;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "reportedById" || name === "locationId" || name === "assetId" 
+        ? (value ? parseInt(value, 10) : undefined)
+        : value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    
-    // Reset form after a delay
-    setTimeout(() => {
-      setFormData({
-        title: "",
-        description: "",
-        category: "IT",
-        priority: "Medium",
-        resourceLocation: "",
-        createdBy: "",
-        preferredContactInfo: "",
-      });
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      // Create the ticket
+      const newTicket = await ticketService.createTicket(formData);
+      setCreatedTicket(newTicket);
+      setSubmitted(true);
+
+      // Upload attachments if any
+      if (selectedFiles.length > 0) {
+        try {
+          for (const file of selectedFiles) {
+            await attachmentService.uploadAttachment(newTicket.id, formData.reportedById, file);
+          }
+          setSuccessMessage(`Ticket created successfully with ${selectedFiles.length} attachment(s)!`);
+        } catch (attachmentError) {
+          // Ticket was created but attachment upload failed
+          setError(
+            `Ticket created but failed to upload some attachments: ${attachmentError instanceof Error ? attachmentError.message : "Unknown error"}`
+          );
+        }
+      } else {
+        setSuccessMessage("Ticket created successfully!");
+      }
+
+      // Reset form after a delay
+      setTimeout(() => {
+        setFormData({
+          title: "",
+          description: "",
+          priority: "Medium",
+          contact: "",
+          reportedById: 1,
+          locationId: undefined,
+          assetId: undefined,
+        });
+        setSelectedFiles([]);
+        setSubmitted(false);
+        setCreatedTicket(null);
+      }, 4000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred while creating the ticket");
       setSubmitted(false);
-    }, 3000);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -61,9 +110,21 @@ const CreateTicket: React.FC = () => {
           <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Ticket Details</h2>
 
-            {submitted && (
+            {error && (
+              <div className="mb-6 p-4 rounded-lg bg-red-100 text-red-800 border border-red-300 font-medium">
+                ✗ {error}
+              </div>
+            )}
+
+            {successMessage && (
               <div className="mb-6 p-4 rounded-lg bg-green-100 text-green-800 border border-green-300 font-medium">
-                ✓ Ticket preview ready! Backend integration coming soon.
+                ✓ {successMessage}
+              </div>
+            )}
+
+            {submitted && (
+              <div className="mb-6 p-4 rounded-lg bg-blue-100 text-blue-800 border border-blue-300 font-medium">
+                ✓ Ticket created! Ticket ID: {createdTicket?.id}
               </div>
             )}
 
@@ -102,25 +163,6 @@ const CreateTicket: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
-                  </label>
-                  <select
-                    id="category"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="IT">IT</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div>
                   <label htmlFor="priority" className="block text-sm font-semibold text-gray-700 mb-2">
                     Priority *
                   </label>
@@ -136,49 +178,64 @@ const CreateTicket: React.FC = () => {
                     <option value="High">High</option>
                   </select>
                 </div>
+
+                <div>
+                  <label htmlFor="reportedById" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Reported By User ID *
+                  </label>
+                  <input
+                    type="number"
+                    id="reportedById"
+                    name="reportedById"
+                    value={formData.reportedById}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="locationId" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Location ID (optional)
+                  </label>
+                  <input
+                    type="number"
+                    id="locationId"
+                    name="locationId"
+                    value={formData.locationId || ""}
+                    onChange={handleChange}
+                    placeholder="Location ID"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="assetId" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Asset ID (optional)
+                  </label>
+                  <input
+                    type="number"
+                    id="assetId"
+                    name="assetId"
+                    value={formData.assetId || ""}
+                    onChange={handleChange}
+                    placeholder="Asset ID"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
 
               <div>
-                <label htmlFor="resourceLocation" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Resource/Location *
-                </label>
-                <input
-                  type="text"
-                  id="resourceLocation"
-                  name="resourceLocation"
-                  value={formData.resourceLocation}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g., Lab A, Room 101"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="createdBy" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Name *
-                </label>
-                <input
-                  type="text"
-                  id="createdBy"
-                  name="createdBy"
-                  value={formData.createdBy}
-                  onChange={handleChange}
-                  required
-                  placeholder="Your name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="preferredContactInfo" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="contact" className="block text-sm font-semibold text-gray-700 mb-2">
                   Preferred Contact Info *
                 </label>
                 <input
                   type="text"
-                  id="preferredContactInfo"
-                  name="preferredContactInfo"
-                  value={formData.preferredContactInfo}
+                  id="contact"
+                  name="contact"
+                  value={formData.contact}
                   onChange={handleChange}
                   required
                   placeholder="Email or phone number"
@@ -186,11 +243,41 @@ const CreateTicket: React.FC = () => {
                 />
               </div>
 
+              <div>
+                <label htmlFor="attachments" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Attachments (optional)
+                </label>
+                <input
+                  type="file"
+                  id="attachments"
+                  name="attachments"
+                  onChange={handleFileChange}
+                  multiple
+                  accept="*/*"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {selectedFiles.length > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
+                    <p className="text-sm font-semibold text-blue-800 mb-2">Selected files ({selectedFiles.length}):</p>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      {selectedFiles.map((file, index) => (
+                        <li key={index}>• {file.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300 ease-in-out"
+                disabled={loading}
+                className={`w-full font-semibold py-3 rounded-lg transition duration-300 ease-in-out ${
+                  loading
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
               >
-                Preview Ticket
+                {loading ? "Creating Ticket..." : "Create Ticket"}
               </button>
             </form>
           </div>
@@ -205,15 +292,6 @@ const CreateTicket: React.FC = () => {
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase">Title</p>
                     <p className="text-gray-800 font-medium">{formData.title}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase">Category</p>
-                    <p className="text-gray-800">
-                      <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                        {formData.category}
-                      </span>
-                    </p>
                   </div>
 
                   <div>
@@ -234,14 +312,35 @@ const CreateTicket: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase">Location</p>
-                    <p className="text-gray-800">{formData.resourceLocation || "Not specified"}</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase">User ID</p>
+                    <p className="text-gray-800">{formData.reportedById}</p>
                   </div>
 
+                  {formData.locationId && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Location ID</p>
+                      <p className="text-gray-800">{formData.locationId}</p>
+                    </div>
+                  )}
+
+                  {formData.assetId && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Asset ID</p>
+                      <p className="text-gray-800">{formData.assetId}</p>
+                    </div>
+                  )}
+
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase">Reported By</p>
-                    <p className="text-gray-800">{formData.createdBy || "Not specified"}</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase">Contact</p>
+                    <p className="text-gray-800">{formData.contact || "Not specified"}</p>
                   </div>
+
+                  {selectedFiles.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Attachments</p>
+                      <p className="text-gray-800">{selectedFiles.length} file(s)</p>
+                    </div>
+                  )}
 
                   <div className="border-t pt-4">
                     <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Description</p>
