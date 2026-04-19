@@ -30,6 +30,7 @@ const CreateTicket: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [createdTicket, setCreatedTicket] = useState<TicketResponseDTO | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.currentTarget;
@@ -42,8 +43,31 @@ const CreateTicket: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError(null);
     if (e.target.files) {
-      setSelectedFiles(Array.from(e.target.files));
+      const files = Array.from(e.target.files);
+      
+      // Check if more than 3 files are selected
+      if (files.length > 3) {
+        setFileError("Maximum 3 attachments allowed per ticket. Please select up to 3 files.");
+        setSelectedFiles([]);
+        e.target.value = ""; // Reset the input
+        return;
+      }
+
+      // Check if all files are images
+      const invalidFiles = files.filter(
+        (file) => !file.type.startsWith("image/")
+      );
+      
+      if (invalidFiles.length > 0) {
+        setFileError(`Only image files are allowed. ${invalidFiles.length} file(s) rejected.`);
+        setSelectedFiles([]);
+        e.target.value = ""; // Reset the input
+        return;
+      }
+
+      setSelectedFiles(files);
     }
   };
 
@@ -90,6 +114,7 @@ const CreateTicket: React.FC = () => {
         setSelectedFiles([]);
         setSubmitted(false);
         setCreatedTicket(null);
+        setFileError(null);
       }, 4000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while creating the ticket");
@@ -213,7 +238,7 @@ const CreateTicket: React.FC = () => {
 
                 <div>
                   <label htmlFor="assetId" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Asset ID (optional)
+                    Asset ID *
                   </label>
                   <input
                     type="number"
@@ -221,6 +246,7 @@ const CreateTicket: React.FC = () => {
                     name="assetId"
                     value={formData.assetId || ""}
                     onChange={handleChange}
+                    required
                     placeholder="Asset ID"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -245,7 +271,7 @@ const CreateTicket: React.FC = () => {
 
               <div>
                 <label htmlFor="attachments" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Attachments (optional)
+                  Attachments - Images Only (optional, max 3)
                 </label>
                 <input
                   type="file"
@@ -253,12 +279,17 @@ const CreateTicket: React.FC = () => {
                   name="attachments"
                   onChange={handleFileChange}
                   multiple
-                  accept="*/*"
+                  accept="image/*"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {fileError && (
+                  <div className="mt-3 p-3 bg-red-50 rounded border border-red-200">
+                    <p className="text-sm font-semibold text-red-800">⚠ {fileError}</p>
+                  </div>
+                )}
                 {selectedFiles.length > 0 && (
                   <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
-                    <p className="text-sm font-semibold text-blue-800 mb-2">Selected files ({selectedFiles.length}):</p>
+                    <p className="text-sm font-semibold text-blue-800 mb-2">Selected files ({selectedFiles.length}/3):</p>
                     <ul className="text-sm text-blue-700 space-y-1">
                       {selectedFiles.map((file, index) => (
                         <li key={index}>• {file.name}</li>
