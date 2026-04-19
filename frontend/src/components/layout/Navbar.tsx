@@ -1,12 +1,17 @@
 import { Building2, Moon, Sun } from 'lucide-react';
 
-export default function Navbar() {
+interface NavbarProps {
+  setCurrentPage: (page: string) => void;
+  currentPage: string;
+}
+
+export default function Navbar({ setCurrentPage, currentPage }: NavbarProps) {
   const navLinks = [
-    { name: 'Home', href: '#' },
-    { name: 'Facilities', href: '#' },
-    { name: 'Bookings', href: '#' },
-    { name: 'Tickets', href: '#' },
-    { name: 'Dashboard', href: '#' },
+    { name: 'Home', page: 'home' },
+    { name: 'Facilities', page: 'facilities' },
+    { name: 'Bookings', page: 'bookings' },
+    { name: 'Tickets', page: 'create-ticket' },
+    { name: 'Dashboard', page: 'dashboard' },
   ];
 
   return (
@@ -27,13 +32,17 @@ export default function Navbar() {
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <button
                 key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                onClick={() => setCurrentPage(link.page)}
+                className={`text-sm font-medium transition-colors ${
+                  currentPage === link.page
+                    ? 'text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400'
+                }`}
               >
                 {link.name}
-              </a>
+              </button>
             ))}
           </div>
 
