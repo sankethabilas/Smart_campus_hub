@@ -7,7 +7,6 @@ import com.project.smart_campus_operationhub.dtos.TicketStatusUpdateDTO;
 import com.project.smart_campus_operationhub.services.TicketService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class TicketController {
         return ticketService.createTicket(request);
     }
 
-    //TECHNICIAN WORKFLOW ENDPOINTS 
+    // TECHNICIAN WORKFLOW ENDPOINTS
 
     /**
      * STEP 2: Admin assigns technician to ticket

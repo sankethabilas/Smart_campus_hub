@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class TicketAssignDTO {
 
-    private Integer technicianId; // ID of technician to assign
+    private Long technicianId; // ID of technician to assign
     private String priority; // Optional: update priority when assigning
 }

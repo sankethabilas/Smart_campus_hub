@@ -14,6 +14,6 @@ public class TicketAttachmentResponseDTO {
     private String fileName;
     private String filePath;
     private String fileType;
-    private Integer uploadedById;
+    private Long uploadedById;
     private Instant uploadedAt;
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class TicketRequestDTO {
 
-    private Integer reportedById;
+    private Long reportedById;
     private Integer assetId;
     private Integer locationId;
 

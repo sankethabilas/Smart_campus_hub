@@ -25,10 +25,10 @@ public class TicketAttachmentService {
         this.attachmentRepository = attachmentRepository;
     }
 
-    // Upload attachment 
+    // Upload attachment
     public TicketAttachmentResponseDTO uploadAttachment(
             Integer ticketId,
-            Integer userId,
+            Long userId,
             MultipartFile file) throws IOException {
 
         // Set the Limit: max 3 attachments per ticket
