@@ -23,7 +23,7 @@ export interface AssetFilters {
   available?: boolean;
 }
 
-const API_BASE_URL = 'http://localhost:8081/api';
+const API_BASE_URL = 'http://localhost:8082/api';
 
 export const assetService = {
   async fetchAllAssets(): Promise<Asset[]> {

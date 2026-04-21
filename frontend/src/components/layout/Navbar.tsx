@@ -1,12 +1,19 @@
 import { Building2, Moon, Sun } from 'lucide-react';
 
-export default function Navbar() {
-  const navLinks = [
-    { name: 'Home', href: '#' },
-    { name: 'Resources', href: '#' },
-    { name: 'Bookings', href: '#' },
-    { name: 'Tickets', href: '#' },
-    { name: 'Dashboard', href: '#' },
+type Page = 'home' | 'resources';
+
+interface NavbarProps {
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
+}
+
+export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
+  const navLinks: { name: string; page: Page | null; href?: string }[] = [
+    { name: 'Home', page: 'home' },
+    { name: 'Resources', page: 'resources' },
+    { name: 'Bookings', page: null, href: '#' },
+    { name: 'Tickets', page: null, href: '#' },
+    { name: 'Dashboard', page: null, href: '#' },
   ];
 
   return (
@@ -15,7 +22,10 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           
           {/* Logo Section */}
-          <div className="flex items-center gap-2 cursor-pointer group">
+          <div
+            className="flex items-center gap-2 cursor-pointer group"
+            onClick={() => onNavigate('home')}
+          >
             <div className="p-2 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
               <Building2 className="w-6 h-6 text-indigo-600" />
             </div>
@@ -26,18 +36,28 @@ export default function Navbar() {
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.page && currentPage === link.page;
+              return (
+                <button
+                  key={link.name}
+                  onClick={() => link.page && onNavigate(link.page)}
+                  className={`relative text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400'
+                  }`}
+                >
+                  {link.name}
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
-  {/* Action Buttons */}
+          {/* Action Buttons */}
           <div className="flex items-center gap-4">
             <button 
               onClick={() => {
