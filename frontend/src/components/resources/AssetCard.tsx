@@ -5,9 +5,12 @@ import type { Asset } from '../../services/assetService';
 interface AssetCardProps {
   asset: Asset;
   onClick: (asset: Asset) => void;
+  onEdit?: (asset: Asset) => void;
+  onDelete?: (asset: Asset) => void;
+  isAdminView?: boolean;
 }
 
-export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
+export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, onDelete, isAdminView }) => {
   const getIcon = () => {
     switch (asset.type) {
       case 'LAB': return <FlaskConical className="w-6 h-6 text-violet-500" />;
@@ -88,20 +91,32 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick }) => {
         >
           <Eye className="w-4 h-4" />
         </button>
-        <button 
-          className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-          onClick={(e) => { e.stopPropagation(); alert('Edit functionality placeholder'); }}
-          title="Edit"
-        >
-          <Edit className="w-4 h-4" />
-        </button>
-        <button 
-          className="p-2 text-gray-600 hover:text-rose-600 hover:bg-rose-50 dark:text-gray-300 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
-          onClick={(e) => { e.stopPropagation(); alert('Delete functionality placeholder'); }}
-          title="Delete"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        {isAdminView && (
+          <>
+            <button 
+              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                if (onEdit) onEdit(asset);
+                else alert('Edit functionality placeholder'); 
+              }}
+              title="Edit"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button 
+              className="p-2 text-gray-600 hover:text-rose-600 hover:bg-rose-50 dark:text-gray-300 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                if (onDelete) onDelete(asset);
+                else alert('Delete functionality placeholder'); 
+              }}
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

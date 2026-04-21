@@ -1,19 +1,20 @@
-import { Building2, Moon, Sun } from 'lucide-react';
-
-type Page = 'home' | 'resources';
+import { Building2, Moon, Sun, ShieldAlert } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface NavbarProps {
-  currentPage: Page;
-  onNavigate: (page: Page) => void;
+  isAdminMode: boolean;
+  onToggleAdmin: () => void;
 }
 
-export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
-  const navLinks: { name: string; page: Page | null; href?: string }[] = [
-    { name: 'Home', page: 'home' },
-    { name: 'Resources', page: 'resources' },
-    { name: 'Bookings', page: null, href: '#' },
-    { name: 'Tickets', page: null, href: '#' },
-    { name: 'Dashboard', page: null, href: '#' },
+export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
+  const location = useLocation();
+
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Resources', path: '/resources' },
+    { name: 'Bookings', path: '/bookings' },
+    { name: 'Tickets', path: '/tickets' },
+    { name: 'Dashboard', path: '/admin' },
   ];
 
   return (
@@ -22,9 +23,9 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
         <div className="flex justify-between items-center h-20">
           
           {/* Logo Section */}
-          <div
+          <Link
+            to="/"
             className="flex items-center gap-2 cursor-pointer group"
-            onClick={() => onNavigate('home')}
           >
             <div className="p-2 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
               <Building2 className="w-6 h-6 text-indigo-600" />
@@ -32,16 +33,16 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Smart Campus <span className="text-indigo-600 dark:text-indigo-400">Hub</span>
             </span>
-          </div>
+          </Link>
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
-              const isActive = link.page && currentPage === link.page;
+              const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
               return (
-                <button
+                <Link
                   key={link.name}
-                  onClick={() => link.page && onNavigate(link.page)}
+                  to={link.path}
                   className={`relative text-sm font-medium transition-colors ${
                     isActive
                       ? 'text-indigo-600 dark:text-indigo-400'
@@ -52,13 +53,25 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                   {isActive && (
                     <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />
                   )}
-                </button>
+                </Link>
               );
             })}
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-4">
+            <button 
+              onClick={onToggleAdmin}
+              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
+                isAdminMode 
+                  ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800' 
+                  : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+              title="Toggle Admin Capabilities"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              {isAdminMode ? 'Admin On' : 'Admin Off'}
+            </button>
             <button 
               onClick={() => {
                 document.documentElement.classList.toggle('dark');

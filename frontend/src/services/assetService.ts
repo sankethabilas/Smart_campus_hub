@@ -52,12 +52,46 @@ export const assetService = {
   },
 
   async fetchLocations(): Promise<{ id: number; name: string }[]> {
-    // Option C: Static dropdown with known location IDs until backend provides an endpoint.
-    return [
-      { id: 1, name: 'Main Campus Building' },
-      { id: 2, name: 'Engineering Annex' },
-      { id: 3, name: 'Science Block' },
-      { id: 4, name: 'Library' },
-    ];
+    const response = await fetch(`${API_BASE_URL}/locations`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch locations');
+    }
+    const result = await response.json();
+    return result.data || result;
+  },
+
+  async createAsset(asset: Omit<Asset, 'id'>): Promise<Asset> {
+    const response = await fetch(`${API_BASE_URL}/assets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(asset),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create asset');
+    }
+    const result = await response.json();
+    return result.data || result;
+  },
+
+  async updateAsset(id: number, asset: Partial<Asset>): Promise<Asset> {
+    const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(asset),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update asset');
+    }
+    const result = await response.json();
+    return result.data || result;
+  },
+
+  async deleteAsset(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete asset');
+    }
   }
 };

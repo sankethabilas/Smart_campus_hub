@@ -20,7 +20,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())       // Disables CSRF for easy testing
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/test", "/api/assets/**").permitAll() // Whitelist our test and assets endpoints
+                .requestMatchers("/api/test", "/api/assets/**", "/api/locations/**").permitAll() // Whitelist our test, assets, and locations endpoints
                 .anyRequest().authenticated()
             );
         return http.build();
