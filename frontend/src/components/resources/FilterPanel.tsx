@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
-import { AssetFilters } from '../../services/assetService';
+import type { AssetFilters } from '../../services/assetService';
 
 interface FilterPanelProps {
   filters: AssetFilters;

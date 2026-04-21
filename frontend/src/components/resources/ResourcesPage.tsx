@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LayoutGrid, Search as SearchIcon, PackageOpen, RefreshCcw, Server } from 'lucide-react';
-import { Asset, AssetFilters, assetService } from '../../services/assetService';
+import { assetService } from '../../services/assetService';
+import type { Asset, AssetFilters } from '../../services/assetService';
 import { AssetCard } from './AssetCard';
 import { AssetCardSkeleton } from './AssetCardSkeleton';
 import { FilterPanel } from './FilterPanel';

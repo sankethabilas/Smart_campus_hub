@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, FlaskConical, DoorOpen, Cpu, Calendar, Users, MapPin, CheckCircle, XCircle } from 'lucide-react';
-import { Asset } from '../../services/assetService';
+import type { Asset } from '../../services/assetService';
 
 interface AssetDetailModalProps {
   asset: Asset;

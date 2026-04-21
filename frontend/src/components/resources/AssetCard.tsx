@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlaskConical, DoorOpen, Cpu, Edit, Trash2, Eye } from 'lucide-react';
-import { Asset } from '../../services/assetService';
+import type { Asset } from '../../services/assetService';
 
 interface AssetCardProps {
   asset: Asset;
