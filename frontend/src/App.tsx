@@ -11,11 +11,11 @@ import CreateTicket from './components/ticket/CreateTicket';
 
 function App() {
   const [, setIsBackendConnected] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false); // Temporary Admin Mode Toggle
+  const [currentPage, setCurrentPage] = useState('home');
 
   // Background hook to verify connection for Footer LED
   useEffect(() => {
-    fetch('http://localhost:8082/api/test')
+    fetch('http://localhost:8081/api/test')
       .then((res) => {
         if (res.ok) setIsBackendConnected(true);
       })
