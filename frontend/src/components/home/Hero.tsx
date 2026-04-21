@@ -1,6 +1,10 @@
 import { CalendarDays, AlertTriangle, BarChart3, Bell } from 'lucide-react';
 
-export default function Hero() {
+interface HeroProps {
+  setCurrentPage?: (page: string) => void;
+}
+
+export default function Hero({ setCurrentPage }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-white dark:bg-slate-900 pt-16 pb-32 transition-colors duration-300">
       {/* Background gradients */}
@@ -32,7 +36,9 @@ export default function Hero() {
                 <CalendarDays className="w-5 h-5" />
                 Book a Facility
               </button>
-              <button className="flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-800 hover:border-indigo-200 dark:hover:border-indigo-700 text-indigo-600 dark:text-indigo-400 px-8 py-3.5 rounded-lg font-semibold hover:bg-indigo-50 dark:hover:bg-slate-700 transition-all">
+              <button
+                onClick={() => setCurrentPage?.('create-ticket')}
+                className="flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-800 hover:border-indigo-200 dark:hover:border-indigo-700 text-indigo-600 dark:text-indigo-400 px-8 py-3.5 rounded-lg font-semibold hover:bg-indigo-50 dark:hover:bg-slate-700 transition-all cursor-pointer">
                 <AlertTriangle className="w-5 h-5" />
                 Report an Issue
               </button>

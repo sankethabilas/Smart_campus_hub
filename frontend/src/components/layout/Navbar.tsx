@@ -21,7 +21,6 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
     <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
           {/* Logo Section */}
           <Link
             to="/"
@@ -60,11 +59,11 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={onToggleAdmin}
               className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
-                isAdminMode 
-                  ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800' 
+                isAdminMode
+                  ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800'
                   : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
               title="Toggle Admin Capabilities"
@@ -72,7 +71,7 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
               <ShieldAlert className="w-3.5 h-3.5" />
               {isAdminMode ? 'Admin On' : 'Admin Off'}
             </button>
-            <button 
+            <button
               onClick={() => {
                 document.documentElement.classList.toggle('dark');
               }}

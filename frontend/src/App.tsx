@@ -7,6 +7,7 @@ import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
 import { ResourcesPage } from './components/resources/ResourcesPage';
 import { AdminLayout } from './components/admin/AdminLayout';
+import CreateTicket from './components/ticket/CreateTicket';
 
 function App() {
   const [, setIsBackendConnected] = useState(false);
@@ -23,33 +24,38 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100 overflow-x-hidden transition-colors duration-300">
-      
       {/* Routes without standard Navbar/Footer */}
       <Routes>
         <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
-        
+
         {/* Standard Pages */}
-        <Route path="*" element={
-          <>
-            <Navbar isAdminMode={isAdminMode} onToggleAdmin={() => setIsAdminMode(!isAdminMode)} />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={
-                  <>
-                    <Hero />
-                    <Features />
-                    <HowItWorks />
-                  </>
-                } />
-                <Route path="/resources" element={<ResourcesPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-            <Footer />
-          </>
-        } />
+        <Route
+          path="*"
+          element={
+            <>
+              <Navbar isAdminMode={isAdminMode} onToggleAdmin={() => setIsAdminMode(!isAdminMode)} />
+              <main className="flex-grow">
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <>
+                        <Hero />
+                        <Features />
+                        <HowItWorks />
+                      </>
+                    }
+                  />
+                  <Route path="/resources" element={<ResourcesPage />} />
+                  <Route path="/tickets" element={<CreateTicket />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </main>
+              <Footer />
+            </>
+          }
+        />
       </Routes>
-      
     </div>
   );
 }
