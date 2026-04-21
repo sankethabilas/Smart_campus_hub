@@ -21,7 +21,7 @@ public class LocationController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<LocationDto>>> getAllLocations() {
         List<LocationDto> locations = locationService.getAllLocations();
-        ApiResponse<List<LocationDto>> response = new ApiResponse<>(locations, "Locations retrieved successfully");
+        ApiResponse<List<LocationDto>> response = new ApiResponse<>(true, "Locations retrieved successfully", locations);
         return ResponseEntity.ok(response);
     }
 }
