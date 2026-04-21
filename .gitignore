@@ -36,7 +36,8 @@ build/
 node_modules/
 
 # Documentation
-# doc/
+ doc/
+ docs/
 
 # API Secrets
 backend/.env
