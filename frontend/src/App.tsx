@@ -5,6 +5,8 @@ import Hero from './components/home/Hero';
 import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
 import CreateTicket from './components/ticket/CreateTicket';
+import TechnicianDashboard from './components/ticket/TechnicianDashboard';
+import TicketAdminPage from './components/ticket/TicketAdminPage';
 
 function App() {
   const [, setIsBackendConnected] = useState(false);
@@ -34,7 +36,11 @@ function App() {
             <HowItWorks />
           </>
         ) : currentPage === 'create-ticket' ? (
-          <CreateTicket />
+          <CreateTicket setCurrentPage={setCurrentPage} />
+        ) : currentPage === 'technician-dashboard' ? (
+          <TechnicianDashboard setCurrentPage={setCurrentPage} />
+        ) : currentPage === 'ticket-admin' ? (
+          <TicketAdminPage setCurrentPage={setCurrentPage} />
         ) : null}
       </main>
 
