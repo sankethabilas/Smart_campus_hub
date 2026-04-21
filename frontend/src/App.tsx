@@ -10,7 +10,7 @@ function App() {
 
   // Background hook to verify connection for Footer LED
   useEffect(() => {
-    fetch('http://localhost:8080/api/test')
+    fetch('http://localhost:8081/api/test')
       .then((res) => {
         if (res.ok) setIsBackendConnected(true);
       })
