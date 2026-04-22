@@ -5,14 +5,14 @@ import Footer from './components/layout/Footer';
 import Hero from './components/home/Hero';
 import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
-import { ResourcesPage } from './components/resources/ResourcesPage';
+import Login from './components/Login';
 import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 import TechnicianDashboard from './components/ticket/TechnicianDashboard';
 
 function App() {
+  const location = useLocation();
   const [, setIsBackendConnected] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,9 +68,8 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100 overflow-x-hidden transition-colors duration-300">
-      {/* Routes without standard Navbar/Footer */}
-      <Routes>
-        <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
+      {/* Top Navigation */}
+      <Navbar setCurrentPage={setCurrentPage} currentPage={currentPage} />
 
         {/* Standard Pages */}
         <Route
@@ -104,5 +103,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
