@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
 import type { TicketResponseDTO } from "../../services/ticketService";
 
-interface TicketAdminPageProps {
-  setCurrentPage: (page: string) => void;
-}
-
-const TicketAdminPage: React.FC<TicketAdminPageProps> = ({ setCurrentPage }) => {
+const TicketAdminPage: React.FC = () => {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

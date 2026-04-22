@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Database, PlusCircle, CalendarDays, Wrench, Home, LogOut } from 'lucide-react';
+import { LayoutDashboard, Database, PlusCircle, CalendarDays, Wrench, Home, LogOut, Ticket } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();
@@ -9,6 +9,7 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Dashboard Overview', path: '/admin/overview', icon: LayoutDashboard },
     { name: 'Facilities & Assets', path: '/admin/resources', icon: Database },
     { name: 'Add New Resource', path: '/admin/resources?add=true', icon: PlusCircle }, // Handled in ManageResources
+    { name: 'Tickets', path: '/admin/tickets', icon: Ticket },
     { name: 'Bookings', path: '/admin/bookings', icon: CalendarDays },
     { name: 'Maintenance', path: '/admin/maintenance', icon: Wrench },
   ];
