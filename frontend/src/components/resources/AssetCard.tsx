@@ -7,10 +7,11 @@ interface AssetCardProps {
   onClick: (asset: Asset) => void;
   onEdit?: (asset: Asset) => void;
   onDelete?: (asset: Asset) => void;
+  onBook?: (asset: Asset) => void;
   isAdminView?: boolean;
 }
 
-export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, onDelete, isAdminView }) => {
+export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, onDelete, onBook, isAdminView }) => {
   const getIcon = () => {
     switch (asset.type) {
       case 'LAB': return <FlaskConical className="w-6 h-6 text-violet-500" />;
@@ -84,6 +85,14 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, on
 
       {/* Hover Actions Panel */}
       <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-white via-white to-transparent dark:from-gray-800 dark:via-gray-800 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-end gap-2">
+        {onBook && (
+          <button 
+            className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors mr-auto shadow-sm"
+            onClick={(e) => { e.stopPropagation(); onBook(asset); }}
+          >
+            Book Now
+          </button>
+        )}
         <button 
           className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-300 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
           onClick={(e) => { e.stopPropagation(); onClick(asset); }}

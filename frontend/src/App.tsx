@@ -6,6 +6,7 @@ import Hero from './components/home/Hero';
 import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
 import { ResourcesPage } from './components/resources/ResourcesPage';
+import { MyBookingsPage } from './components/bookings/MyBookingsPage';
 import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 
@@ -48,6 +49,7 @@ function App() {
                     }
                   />
                   <Route path="/resources" element={<ResourcesPage />} />
+                  <Route path="/bookings" element={<MyBookingsPage />} />
                   <Route path="/tickets" element={<CreateTicket />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

@@ -7,6 +7,7 @@ import { AssetCardSkeleton } from './AssetCardSkeleton';
 import { FilterPanel } from './FilterPanel';
 import { SearchBar } from './SearchBar';
 import { AssetDetailModal } from './AssetDetailModal';
+import { BookResourceModal } from '../bookings/BookResourceModal';
 
 const DEFAULT_FILTERS: AssetFilters = {};
 
@@ -17,6 +18,7 @@ export const ResourcesPage: React.FC = () => {
   const [filters, setFilters] = useState<AssetFilters>(DEFAULT_FILTERS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [bookingAsset, setBookingAsset] = useState<Asset | null>(null);
 
   const loadAssets = async () => {
     setLoading(true);
@@ -195,6 +197,7 @@ export const ResourcesPage: React.FC = () => {
                     key={asset.id}
                     asset={asset}
                     onClick={setSelectedAsset}
+                    onBook={setBookingAsset}
                   />
                 ))}
               </div>
@@ -210,6 +213,16 @@ export const ResourcesPage: React.FC = () => {
           onClose={() => setSelectedAsset(null)}
         />
       )}
+
+      {/* Booking modal */}
+      <BookResourceModal
+        asset={bookingAsset}
+        isOpen={!!bookingAsset}
+        onClose={() => setBookingAsset(null)}
+        onSuccess={() => {
+          alert('Booking request submitted successfully!');
+        }}
+      />
     </div>
   );
 };
