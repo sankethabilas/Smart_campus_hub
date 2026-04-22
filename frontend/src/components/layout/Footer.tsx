@@ -2,7 +2,7 @@ import { Building2 } from 'lucide-react';
 
 export default function Footer() {
   const footerLinks = {
-    Product: ['Facilities', 'Bookings', 'Tickets', 'Dashboard'],
+    Product: ['Resources', 'Bookings', 'Tickets', 'Dashboard'],
     Company: ['About', 'Careers', 'Blog', 'Press'],
     Support: ['Help Center', 'Contact Us', 'Privacy', 'Terms'],
   };

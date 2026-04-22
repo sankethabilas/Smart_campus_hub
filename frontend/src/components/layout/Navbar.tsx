@@ -1,54 +1,77 @@
-import { Building2, Moon, Sun } from 'lucide-react';
+import { Building2, Moon, Sun, ShieldAlert } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface NavbarProps {
-  setCurrentPage: (page: string) => void;
-  currentPage: string;
+  isAdminMode: boolean;
+  onToggleAdmin: () => void;
 }
 
-export default function Navbar({ setCurrentPage, currentPage }: NavbarProps) {
+export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
+  const location = useLocation();
+
   const navLinks = [
-    { name: 'Home', page: 'home' },
-    { name: 'Facilities', page: 'facilities' },
-    { name: 'Bookings', page: 'bookings' },
-    { name: 'Tickets', page: 'create-ticket' },
-    { name: 'Dashboard', page: 'dashboard' },
+    { name: 'Home', path: '/' },
+    { name: 'Resources', path: '/resources' },
+    { name: 'Bookings', path: '/bookings' },
+    { name: 'Tickets', path: '/tickets' },
+    { name: 'Dashboard', path: '/admin' },
   ];
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
           {/* Logo Section */}
-          <div className="flex items-center gap-2 cursor-pointer group">
+          <Link
+            to="/"
+            className="flex items-center gap-2 cursor-pointer group"
+          >
             <div className="p-2 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
               <Building2 className="w-6 h-6 text-indigo-600" />
             </div>
             <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Smart Campus <span className="text-indigo-600 dark:text-indigo-400">Hub</span>
             </span>
-          </div>
+          </Link>
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <button
-                key={link.name}
-                onClick={() => setCurrentPage(link.page)}
-                className={`text-sm font-medium transition-colors ${
-                  currentPage === link.page
-                    ? 'text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400'
-                }`}
-              >
-                {link.name}
-              </button>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
+              return (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`relative text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400'
+                  }`}
+                >
+                  {link.name}
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
-  {/* Action Buttons */}
+          {/* Action Buttons */}
           <div className="flex items-center gap-4">
-            <button 
+            <button
+              onClick={onToggleAdmin}
+              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
+                isAdminMode
+                  ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800'
+                  : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+              title="Toggle Admin Capabilities"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              {isAdminMode ? 'Admin On' : 'Admin Off'}
+            </button>
+            <button
               onClick={() => {
                 document.documentElement.classList.toggle('dark');
               }}
