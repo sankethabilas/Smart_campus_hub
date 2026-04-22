@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminSidebar } from './AdminSidebar';
 import { DashboardOverview } from './views/DashboardOverview';
 import { ManageResources } from './views/ManageResources';
+import TicketAdminPage from '../ticket/TicketAdminPage';
 
 interface AdminLayoutProps {
   isAdminMode: boolean;
@@ -36,6 +37,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ isAdminMode }) => {
           <Routes>
             <Route path="overview" element={<DashboardOverview />} />
             <Route path="resources" element={<ManageResources />} />
+            <Route path="tickets" element={<TicketAdminPage />} />
             <Route path="*" element={<Navigate to="overview" replace />} />
           </Routes>
         </main>
