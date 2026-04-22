@@ -56,7 +56,7 @@ public class TicketService {
         // Relationships (set only IDs)
         if (request.getReportedById() != null) {
             Users user = new Users();
-            user.setId(request.getReportedById());
+            user.setId(Long.valueOf(request.getReportedById()));
             ticket.setReportedBy(user);
         }
 
@@ -87,7 +87,7 @@ public class TicketService {
 
         // Relationships (null safe)
         dto.setReportedById(
-                ticket.getReportedBy() != null ? ticket.getReportedBy().getId() : null);
+                ticket.getReportedBy() != null ? ticket.getReportedBy().getId().intValue() : null);
 
         dto.setAssetId(
                 ticket.getAsset() != null ? ticket.getAsset().getId() : null);
@@ -96,7 +96,7 @@ public class TicketService {
                 ticket.getLocation() != null ? ticket.getLocation().getId() : null);
 
         dto.setAssignedToId(
-                ticket.getAssignedTo() != null ? ticket.getAssignedTo().getId() : null);
+                ticket.getAssignedTo() != null ? ticket.getAssignedTo().getId().intValue() : null);
 
         dto.setPriority(ticket.getPriority());
         dto.setTitle(ticket.getTitle());
