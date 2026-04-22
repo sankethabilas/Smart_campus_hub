@@ -16,6 +16,7 @@ export interface ApiResponse<T> {
 }
 
 export interface AssetFilters {
+  query?: string;
   type?: string;
   status?: string;
   capacity?: number;
