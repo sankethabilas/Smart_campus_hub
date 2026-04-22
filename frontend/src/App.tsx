@@ -7,9 +7,11 @@ import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
 import Login from './components/Login';
 import AdminLayout from './components/admin/views/AdminLayout';
+import CreateTicket from './components/ticket/CreateTicket';
 
 function App() {
 	const [, setIsBackendConnected] = useState(false);
+	const [currentPage, setCurrentPage] = useState('home');
 
 	// Background hook to verify connection for Footer LED
 	useEffect(() => {
@@ -24,7 +26,7 @@ function App() {
 		<BrowserRouter>
 			<div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100 overflow-x-hidden transition-colors duration-300">
 				{/* Top Navigation */}
-				<Navbar />
+				<Navbar setCurrentPage={setCurrentPage} currentPage={currentPage}/>
 
 				{/* Main Content Area */}
 				<main className="grow">
@@ -38,22 +40,18 @@ function App() {
 						} />
 
 						<Route path="/login" element={<Login />} />
-						<Route path="/admin" element={<AdminLayout />} />
+                        <Route path="/admin" element={<AdminLayout />} />
 
-					</Routes>
-
-
-
-
+						<Route path="/create-ticket" element={<CreateTicket />} />
+                    </Routes>
 				</main>
-
-				{/* Optional: Modifying Footer prop dynamically to pass connection state, 
-          but for simplicity maintaining it as a visual demo */}
 				<Footer />
 			</div>
 		</BrowserRouter>
-
 	);
 }
+
+
+
 
 export default App;
