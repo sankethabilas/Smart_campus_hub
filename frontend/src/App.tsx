@@ -18,9 +18,11 @@ function App() {
   const navigate = useNavigate();
   const isAdminMode = location.pathname.startsWith('/admin');
 
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
+
   // Background hook to verify connection for Footer LED
   useEffect(() => {
-    fetch('http://localhost:8081/api/test')
+    fetch(`${BACKEND_URL}/api/test`)
       .then((res) => {
         if (res.ok) setIsBackendConnected(true);
       })
