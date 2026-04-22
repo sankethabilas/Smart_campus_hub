@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './components/home/Hero';
@@ -10,9 +10,10 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 
 function App() {
+	const location = useLocation();
 	const [, setIsBackendConnected] = useState(false);
-	const [isAdminMode] = useState(true);
 	const [currentPage, setCurrentPage] = useState('home');
+	const isAdminMode = location.pathname.startsWith('/admin');
 
 	// Background hook to verify connection for Footer LED
 	useEffect(() => {
@@ -40,10 +41,10 @@ function App() {
 					} />
 
 					<Route path="/login" element={<Login />} />
-                    <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
+					<Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
 
 					<Route path="/create-ticket" element={<CreateTicket />} />
-                </Routes>
+				</Routes>
 			</main>
 			<Footer />
 		</div>
