@@ -25,10 +25,10 @@ public class TicketAttachmentService {
         this.attachmentRepository = attachmentRepository;
     }
 
-    // Upload attachment 
+    // Upload attachment
     public TicketAttachmentResponseDTO uploadAttachment(
             Integer ticketId,
-            Integer userId,
+            Long userId,
             MultipartFile file) throws IOException {
 
         // Set the Limit: max 3 attachments per ticket
@@ -53,7 +53,7 @@ public class TicketAttachmentService {
         attachment.setTicket(ticket);
 
         Users user = new Users();
-        user.setId(Long.valueOf(userId));
+        user.setId(userId);
         attachment.setUploadedBy(user);
 
         attachment.setFileName(file.getOriginalFilename());
@@ -85,7 +85,7 @@ public class TicketAttachmentService {
         dto.setFilePath(att.getFilePath());
         dto.setFileType(att.getFileType());
         dto.setUploadedById(
-                att.getUploadedBy() != null ? att.getUploadedBy().getId().intValue() : null);
+                att.getUploadedBy() != null ? att.getUploadedBy().getId() : null);
         dto.setUploadedAt(att.getUploadedAt());
 
         return dto;

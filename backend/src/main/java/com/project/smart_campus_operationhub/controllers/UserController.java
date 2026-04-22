@@ -3,7 +3,6 @@ package com.project.smart_campus_operationhub.controllers;
 import com.project.smart_campus_operationhub.dtos.RegisterUserRequest;
 import com.project.smart_campus_operationhub.dtos.UpdateUserRequest;
 import com.project.smart_campus_operationhub.dtos.UserDto;
-import com.project.smart_campus_operationhub.entities.Role;
 import com.project.smart_campus_operationhub.mappers.UserMapper;
 import com.project.smart_campus_operationhub.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -24,7 +23,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public Iterable<UserDto> getAllUsers(){
+    public Iterable<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
                 .map(userMapper::toDto)
@@ -45,10 +44,9 @@ public class UserController {
             @Valid @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder) {
 
-        if(userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             return ResponseEntity.badRequest().body(
-                    Map.of("email", "Email is already registered")
-            );
+                    Map.of("email", "Email is already registered"));
         }
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -63,8 +61,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable(name = "id") Long id,
-            @RequestBody UpdateUserRequest request
-    ) {
+            @RequestBody UpdateUserRequest request) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return ResponseEntity.notFound().build();

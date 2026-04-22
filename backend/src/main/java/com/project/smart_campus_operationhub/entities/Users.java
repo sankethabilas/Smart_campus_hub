@@ -1,7 +1,6 @@
 package com.project.smart_campus_operationhub.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -80,6 +79,5 @@ public class Users {
 
     @OneToMany(mappedBy = "commentedBy")
     private Set<TicketComment> ticketComments = new HashSet<>();
-
 
 }

@@ -10,7 +10,7 @@ import java.time.Instant;
 public class TicketCommentResponseDTO {
     private Integer id;
     private Integer ticketId;
-    private Integer commentedById;
+    private Long commentedById;
     private String commentedByName;
     private String comment;
     private Instant createdAt;
