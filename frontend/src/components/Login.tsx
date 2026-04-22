@@ -3,10 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
-interface LoginProps {
-    onBack?: () => void;
-}
-
 interface LoginFormData {
     email: string;
     password: string;
@@ -20,7 +16,7 @@ interface JwtPayload {
     exp: number
 }
 
-export default function Login({ onBack }: LoginProps) {
+export default function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',

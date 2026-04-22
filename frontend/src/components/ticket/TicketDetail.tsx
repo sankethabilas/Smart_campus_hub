@@ -17,6 +17,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) => {
 
   useEffect(() => {
     fetchTicketDetails();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketId]);
 
   const fetchTicketDetails = async () => {

@@ -9,13 +9,14 @@ import Login from './components/Login';
 import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 import TechnicianDashboard from './components/ticket/TechnicianDashboard';
+import { ResourcesPage } from './components/resources/ResourcesPage';
 
 function App() {
   const location = useLocation();
   const [, setIsBackendConnected] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const navigate = useNavigate();
-  const location = useLocation();
+  const isAdminMode = location.pathname.startsWith('/admin');
 
   // Background hook to verify connection for Footer LED
   useEffect(() => {
@@ -37,7 +38,7 @@ function App() {
       setCurrentPage('create-ticket');
     } else if (path === '/technician') {
       setCurrentPage('technician-dashboard');
-    } else if (path === '/admin') {
+    } else if (path.startsWith('/admin')) {
       setCurrentPage('ticket-admin');
     }
   }, [location.pathname]);
@@ -68,15 +69,16 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100 overflow-x-hidden transition-colors duration-300">
-      {/* Top Navigation */}
-      <Navbar setCurrentPage={setCurrentPage} currentPage={currentPage} />
+      <Routes>
+        {/* Admin Dashboard has its own layout, no top Navbar/Footer */}
+        <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
 
-        {/* Standard Pages */}
+        {/* Standard Pages have Navbar and Footer */}
         <Route
           path="*"
           element={
             <>
-              <Navbar isAdminMode={isAdminMode} onToggleAdmin={() => setIsAdminMode(!isAdminMode)} />
+              <Navbar setCurrentPage={handleSetCurrentPage} currentPage={currentPage} />
               <main className="flex-grow">
                 <Routes>
                   <Route
@@ -89,6 +91,7 @@ function App() {
                       </>
                     }
                   />
+                  <Route path="/login" element={<Login />} />
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/tickets" element={<CreateTicket setCurrentPage={handleSetCurrentPage} />} />
                   <Route path="/technician" element={<TechnicianDashboard setCurrentPage={handleSetCurrentPage} />} />

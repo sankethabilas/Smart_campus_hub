@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import type { Asset } from '../../../services/assetService';
 import { assetService } from '../../../services/assetService';
 
