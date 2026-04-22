@@ -13,7 +13,6 @@ import CreateTicket from './components/ticket/CreateTicket';
 function App() {
   const [, setIsBackendConnected] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home');
 
   // Background hook to verify connection for Footer LED
   useEffect(() => {

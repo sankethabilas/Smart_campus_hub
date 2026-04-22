@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Database, PlusCircle, CalendarDays, Wrench, Home, LogOut } from 'lucide-react';
+import { LayoutDashboard, Database, PlusCircle, CalendarDays, Wrench, Home } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();

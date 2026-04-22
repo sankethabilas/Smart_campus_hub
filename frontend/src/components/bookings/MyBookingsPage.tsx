@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, XCircle, Users } from 'lucide-react';
-import { bookingService, BookingResponse } from '../../services/bookingService';
+import { Calendar, Clock, XCircle, Users } from 'lucide-react';
+import { bookingService } from '../../services/bookingService';
+import type { BookingResponse } from '../../services/bookingService';
 
 export const MyBookingsPage: React.FC = () => {
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
