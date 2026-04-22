@@ -34,3 +34,14 @@ build/
 
 # Node modules
 node_modules/
+
+# Documentation
+ doc/
+ docs/
+
+# API Secrets
+backend/.env
+
+# Logs
+backend/*.log
+backend/*_log.txt
