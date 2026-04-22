@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { assetService } from '../../../services/assetService';
-import type { Asset, AssetType } from '../../../services/assetService';
-import type { AssetFilters } from '../../resources/ResourcesPage';
+import type { Asset, AssetFilters } from '../../../services/assetService';
 
-import { SearchBar } from '../../resources/SearchBar';
 import { FilterPanel } from '../../resources/FilterPanel';
 import { AssetCard } from '../../resources/AssetCard';
 import { AssetCardSkeleton } from '../../resources/AssetCardSkeleton';
@@ -43,7 +41,7 @@ export const ManageResources: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await assetService.searchAssets(filters.query, filters.type, filters.status, filters.minCapacity);
+      const data = await assetService.searchAssets(filters);
       setAssets(data);
     } catch (err) {
       setError('Failed to connect to the backend server. Make sure it is running on port 8082.');
@@ -87,9 +85,11 @@ export const ManageResources: React.FC = () => {
       {/* Controls */}
       <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="w-full md:w-96">
-          <SearchBar 
-            onSearch={(query) => setFilters(prev => ({ ...prev, query }))} 
-            resultCount={assets.length} 
+          <input
+            type="text"
+            placeholder="Search assets..."
+            onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
+            className="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
           />
         </div>
         <div className="flex w-full md:w-auto gap-2">

@@ -53,7 +53,7 @@ public class TicketAttachmentService {
         attachment.setTicket(ticket);
 
         Users user = new Users();
-        user.setId(userId);
+        user.setId(Long.valueOf(userId));
         attachment.setUploadedBy(user);
 
         attachment.setFileName(file.getOriginalFilename());
@@ -85,7 +85,7 @@ public class TicketAttachmentService {
         dto.setFilePath(att.getFilePath());
         dto.setFileType(att.getFileType());
         dto.setUploadedById(
-                att.getUploadedBy() != null ? att.getUploadedBy().getId() : null);
+                att.getUploadedBy() != null ? att.getUploadedBy().getId().intValue() : null);
         dto.setUploadedAt(att.getUploadedAt());
 
         return dto;
