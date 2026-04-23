@@ -1,7 +1,6 @@
 package com.project.smart_campus_operationhub.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,35 +17,35 @@ import java.util.Set;
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    @Column(name = "id")
+    private Long id;
 
     @Size(max = 100)
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name")
     private String name;
 
     @Size(max = 150)
-    @Column(name = "email", nullable = false, length = 150)
+    @Column(name = "email")
     private String email;
 
-    @Size(max = 50)
-    @Column(name = "role", nullable = false, length = 50)
-    private String role;
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
     @Size(max = 255)
     @Column(name = "password")
     private String password;
 
     @Size(max = 50)
-    @Column(name = "oauth_provider", length = 50)
+    @Column(name = "oauth_provider")
     private String oauthProvider;
 
     @Size(max = 100)
-    @Column(name = "oauth_provider_id", length = 100)
+    @Column(name = "oauth_provider_id")
     private String oauthProviderId;
 
     @Size(max = 20)
-    @Column(name = "phone", length = 20)
+    @Column(name = "phone")
     private String phone;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -80,6 +79,5 @@ public class Users {
 
     @OneToMany(mappedBy = "commentedBy")
     private Set<TicketComment> ticketComments = new HashSet<>();
-
 
 }

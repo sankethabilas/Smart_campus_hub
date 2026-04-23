@@ -1,7 +1,7 @@
 package com.project.smart_campus_operationhub.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +13,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "ticket", schema = "campus")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,6 +79,5 @@ public class Ticket {
 
     @Column(name = "closed_at")
     private Instant closedAt;
-
 
 }
