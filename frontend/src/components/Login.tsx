@@ -3,10 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
-interface LoginProps {
-    onBack?: () => void;
-}
-
 interface LoginFormData {
     email: string;
     password: string;
@@ -20,7 +16,7 @@ interface JwtPayload {
     exp: number
 }
 
-export default function Login({ onBack }: LoginProps) {
+export default function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
@@ -45,9 +41,10 @@ export default function Login({ onBack }: LoginProps) {
         setIsLoading(true);
         setError('');
 
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
         try {
             // TODO: Implement actual login API call
-            const response = await fetch('http://localhost:8080/auth/login', {
+            const response = await fetch(`${BACKEND_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,7 +70,8 @@ export default function Login({ onBack }: LoginProps) {
     };
 
     const handleGoogleSignIn = () => {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
+        window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
     };
 
     const redirectUser = (role: string) => {

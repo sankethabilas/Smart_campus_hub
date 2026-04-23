@@ -21,7 +21,7 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
         { name: 'Dashboard', page: 'dashboard', path: '/dashboard' },
     ];
 
-    const handleNavigation = (page, path) => {
+    const handleNavigation = (page: string, path: string) => {
         setCurrentPage(page); // Keeps the incoming state logic
         navigate(path);       // Keeps your router logic
     };
