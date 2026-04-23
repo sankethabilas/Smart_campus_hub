@@ -29,6 +29,14 @@ export interface TicketResponseDTO {
   closedAt?: string;
 }
 
+export interface TicketStatusUpdateDTO {
+  status: string;
+}
+
+export interface TicketAssignDTO {
+  assignedToId: number;
+}
+
 class TicketService {
   /**
    * Get all tickets
@@ -66,6 +74,95 @@ class TicketService {
         throw new Error(`Failed to create ticket: ${error.message}`);
       }
       throw new Error('Failed to create ticket: Unknown error');
+    }
+  }
+
+  /**
+   * Assign technician to ticket
+   */
+  async assignTechnician(ticketId: number, assignedToId: number): Promise<TicketResponseDTO> {
+    try {
+      const response = await axiosInstance.put<TicketResponseDTO>(
+        `/tickets/${ticketId}/assign`,
+        { assignedToId }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to assign ticket: ${error.message}`);
+      }
+      throw new Error('Failed to assign ticket: Unknown error');
+    }
+  }
+
+  /**
+   * Update ticket status
+   */
+  async updateTicketStatus(ticketId: number, status: string): Promise<TicketResponseDTO> {
+    try {
+      const response = await axiosInstance.put<TicketResponseDTO>(
+        `/tickets/${ticketId}/status`,
+        { status }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to update status: ${error.message}`);
+      }
+      throw new Error('Failed to update status: Unknown error');
+    }
+  }
+
+  /**
+   * Resolve ticket with notes
+   */
+  async resolveTicket(ticketId: number, resolutionNotes: string): Promise<TicketResponseDTO> {
+    try {
+      const response = await axiosInstance.put<TicketResponseDTO>(
+        `/tickets/${ticketId}/resolve`,
+        { resolutionNotes }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to resolve ticket: ${error.message}`);
+      }
+      throw new Error('Failed to resolve ticket: Unknown error');
+    }
+  }
+
+  /**
+   * Close ticket
+   */
+  async closeTicket(ticketId: number): Promise<TicketResponseDTO> {
+    try {
+      const response = await axiosInstance.put<TicketResponseDTO>(
+        `/tickets/${ticketId}/close`
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to close ticket: ${error.message}`);
+      }
+      throw new Error('Failed to close ticket: Unknown error');
+    }
+  }
+
+  /**
+   * Reject ticket
+   */
+  async rejectTicket(ticketId: number, rejectionReason: string): Promise<TicketResponseDTO> {
+    try {
+      const response = await axiosInstance.put<TicketResponseDTO>(
+        `/tickets/${ticketId}/reject`,
+        { rejectionReason }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to reject ticket: ${error.message}`);
+      }
+      throw new Error('Failed to reject ticket: Unknown error');
     }
   }
 }

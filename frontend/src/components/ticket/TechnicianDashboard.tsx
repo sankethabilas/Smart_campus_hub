@@ -6,29 +6,47 @@ interface TechnicianDashboardProps {
   setCurrentPage: (page: string) => void;
 }
 
-const TechnicianDashboard: React.FC<TechnicianDashboardProps> = ({ setCurrentPage }) => {
+interface UserResponse {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+}
+
+const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
+  const [technician, setTechnician] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketResponseDTO | null>(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterPriority, setFilterPriority] = useState("ALL");
-  const technicianId = 2; // Default technician ID - should come from auth context
 
+  // Fetch technician and their tickets on component mount
   useEffect(() => {
-    fetchMyTickets();
+    fetchTechnicianAndTickets();
   }, []);
 
-  const fetchMyTickets = async () => {
+  const fetchTechnicianAndTickets = async () => {
     setLoading(true);
     setError(null);
+    setSelectedTicket(null);
     try {
+      // Fetch technician user (ID 2)
+      const userResponse = await fetch("http://localhost:8081/users/2");
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch technician data");
+      }
+      const technicianData: UserResponse = await userResponse.json();
+      setTechnician(technicianData);
+
+      // Fetch all tickets and filter by assigned technician
       const allTickets = await ticketService.getAllTickets();
-      // Filter tickets assigned to this technician
-      const myTickets = allTickets.filter(ticket => ticket.assignedToId === technicianId);
-      setTickets(myTickets);
+      const assignedTickets = allTickets.filter(ticket => ticket.assignedToId === technicianData.id);
+      setTickets(assignedTickets);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch tickets");
+      setError(err instanceof Error ? err.message : "Failed to fetch technician or tickets");
     } finally {
       setLoading(false);
     }
@@ -77,8 +95,19 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = ({ setCurrentPag
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">My Tickets Dashboard</h1>
-        <p className="text-gray-600 mb-8">View and manage tickets assigned to you</p>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Technician Updates</h1>
+          {technician ? (
+            <p className="text-gray-600">
+              Tickets assigned to {technician.name} (ID: {technician.id})
+            </p>
+          ) : loading ? (
+            <p className="text-gray-600">Loading technician information...</p>
+          ) : (
+            <p className="text-gray-600">Unable to load technician information</p>
+          )}
+        </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -233,6 +262,15 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = ({ setCurrentPag
                           Reported By
                         </p>
                         <p className="text-gray-800">User #{selectedTicket.reportedById}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 uppercase">
+                          Assigned To
+                        </p>
+                        <p className="text-gray-800">
+                          {technician ? `${technician.name} (ID: ${technician.id})` : "Technician"}
+                        </p>
                       </div>
 
                       {selectedTicket.locationId && (

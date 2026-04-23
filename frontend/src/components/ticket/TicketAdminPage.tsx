@@ -95,17 +95,57 @@ const TicketAdminPage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      // Since we don't have an update endpoint yet, we'll show a success message
-      // In real implementation, this would call an update API endpoint
-      setSuccessMessage(
-        `Ticket #${selectedTicket.id} would be updated with status: ${updateStatus}, assignee: ${updateAssignee}`
+      let updatedTicket = selectedTicket;
+
+      // Update status if changed
+      if (updateStatus && updateStatus !== selectedTicket.status) {
+        updatedTicket = await ticketService.updateTicketStatus(
+          selectedTicket.id,
+          updateStatus
+        );
+      }
+
+      // Assign technician if changed
+      if (updateAssignee && updateAssignee !== (selectedTicket.assignedToId?.toString() || "")) {
+        updatedTicket = await ticketService.assignTechnician(
+          selectedTicket.id,
+          Number(updateAssignee)
+        );
+      }
+
+      // Resolve ticket with notes if status is RESOLVED
+      if (updateStatus === "RESOLVED" && resolutionNotes) {
+        updatedTicket = await ticketService.resolveTicket(
+          selectedTicket.id,
+          resolutionNotes
+        );
+      }
+
+      // Close ticket if status is CLOSED
+      if (updateStatus === "CLOSED") {
+        updatedTicket = await ticketService.closeTicket(selectedTicket.id);
+      }
+
+      // Reject ticket if status is REJECTED
+      if (updateStatus === "REJECTED" && rejectionReason) {
+        updatedTicket = await ticketService.rejectTicket(
+          selectedTicket.id,
+          rejectionReason
+        );
+      }
+
+      setSuccessMessage(`Ticket #${selectedTicket.id} updated successfully!`);
+      
+      // Update the ticket in the list
+      setTickets(
+        tickets.map((t) => (t.id === updatedTicket.id ? updatedTicket : t))
       );
 
-      // Reset form after 3 seconds
+      // Reset form after 2 seconds
       setTimeout(() => {
         setSelectedTicket(null);
         setSuccessMessage(null);
-      }, 3000);
+      }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update ticket");
     }
