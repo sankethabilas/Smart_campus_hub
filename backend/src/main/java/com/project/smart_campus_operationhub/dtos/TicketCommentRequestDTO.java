@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class TicketCommentRequestDTO {
     private Integer ticketId;
-    private Integer commentedById;
+    private Long commentedById;
     private String comment;
 }
