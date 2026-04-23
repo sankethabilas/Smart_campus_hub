@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router-dom';
 interface NavbarProps {
   setCurrentPage: (page: string) => void;
   currentPage: string;
+  isAdminMode: boolean;
+  onToggleAdmin: () => void;
 }
 
-export default function Navbar({ setCurrentPage, currentPage }: NavbarProps) {
+export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onToggleAdmin }: NavbarProps) {
     const navigate = useNavigate();
 
     // Merged links: Using 'page' for the state and 'path' for the router
