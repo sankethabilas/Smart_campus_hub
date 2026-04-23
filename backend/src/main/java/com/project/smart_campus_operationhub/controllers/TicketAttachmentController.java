@@ -22,7 +22,7 @@ public class TicketAttachmentController {
     @PostMapping
     public TicketAttachmentResponseDTO uploadAttachment(
             @PathVariable Integer ticketId,
-            @RequestParam Long userId,
+            @RequestParam Integer userId,
             @RequestParam("file") MultipartFile file) throws IOException {
 
         return attachmentService.uploadAttachment(ticketId, userId, file);
