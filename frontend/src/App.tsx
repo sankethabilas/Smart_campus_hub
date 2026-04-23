@@ -6,8 +6,9 @@ import Hero from './components/home/Hero';
 import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
 import Login from './components/Login';
-import AdminLayout from './components/admin/views/AdminLayout';
+//import AdminLayout from './components/admin/views/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
+import Register from './components/layout/Register';
 
 function App() {
 	const [, setIsBackendConnected] = useState(false);
@@ -40,7 +41,8 @@ function App() {
 						} />
 
 						<Route path="/login" element={<Login />} />
-                        <Route path="/admin" element={<AdminLayout />} />
+                        {/* <Route path="/admin" element={<AdminLayout />} /> */}
+						<Route path='/signup' element={<Register />} />
 
 						<Route path="/create-ticket" element={<CreateTicket />} />
                     </Routes>
