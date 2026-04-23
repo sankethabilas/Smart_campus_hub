@@ -95,7 +95,7 @@ export default function Register({ onBack }: RegisterProps) {
 		setError('');
 
 		try {
-			const response = await fetch('http://localhost:8081/users', {
+			const response = await fetch('http://localhost:8080/users', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
