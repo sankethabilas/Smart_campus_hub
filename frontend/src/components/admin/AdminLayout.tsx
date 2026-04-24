@@ -4,6 +4,7 @@ import { AdminSidebar } from './AdminSidebar';
 import { DashboardOverview } from './views/DashboardOverview';
 import { ManageResources } from './views/ManageResources';
 import { ManageBookings } from './views/ManageBookings';
+import TicketAdminPage from '../ticket/TicketAdminPage';
 
 interface AdminLayoutProps {
   isAdminMode: boolean;
@@ -38,6 +39,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ isAdminMode }) => {
             <Route path="overview" element={<DashboardOverview />} />
             <Route path="resources" element={<ManageResources />} />
             <Route path="bookings" element={<ManageBookings />} />
+            <Route path="tickets" element={<TicketAdminPage />} />
             <Route path="*" element={<Navigate to="overview" replace />} />
           </Routes>
         </main>

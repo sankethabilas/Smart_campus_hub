@@ -12,10 +12,10 @@ public class TicketResponseDTO {
     private Integer id;
 
     // Relationships (only IDs to avoid heavy objects)
-    private Integer reportedById;
+    private Long reportedById;
     private Integer assetId;
     private Integer locationId;
-    private Integer assignedToId;
+    private Long assignedToId;
 
     private String priority;
     private String title;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './components/home/Hero';
@@ -7,57 +7,103 @@ import Features from './components/home/Features';
 import HowItWorks from './components/home/HowItWorks';
 import { ResourcesPage } from './components/resources/ResourcesPage';
 import { MyBookingsPage } from './components/bookings/MyBookingsPage';
+import Login from './components/Login';
+import Register from './components/layout/Register';
 import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
+import TechnicianDashboard from './components/ticket/TechnicianDashboard';
+import { ResourcesPage } from './components/resources/ResourcesPage';
 
 function App() {
-  const [, setIsBackendConnected] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // State
+  const [isBackendConnected, setIsBackendConnected] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home');
+  const [isAdminModeState, setIsAdminModeState] = useState(false);
+  
+  // URL-based admin detection (Cleaner than manual state for routing)
+  const isAdminMode = location.pathname.startsWith('/admin') || isAdminModeState;
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
 
-  // Background hook to verify connection for Footer LED
+  // Verify backend connection
   useEffect(() => {
-    fetch('http://localhost:8082/api/assets')
+    fetch(`${BACKEND_URL}/api/test`)
       .then((res) => {
         if (res.ok) setIsBackendConnected(true);
       })
       .catch(() => setIsBackendConnected(false));
-  }, []);
+  }, [BACKEND_URL]);
+
+  // Sync currentPage with route changes for UI highlights
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/') setCurrentPage('home');
+    else if (path === '/resources') setCurrentPage('resources');
+    else if (path === '/tickets') setCurrentPage('create-ticket');
+    else if (path === '/technician') setCurrentPage('technician-dashboard');
+    else if (path.startsWith('/admin')) setCurrentPage('ticket-admin');
+  }, [location.pathname]);
+
+  // Centralized navigation handler
+  const handleSetCurrentPage = (page: string) => {
+    setCurrentPage(page);
+    switch (page) {
+      case 'home': navigate('/'); break;
+      case 'resources': navigate('/resources'); break;
+      case 'create-ticket': navigate('/tickets'); break;
+      case 'technician-dashboard': navigate('/technician'); break;
+      case 'ticket-admin': navigate('/admin'); break;
+      default: navigate('/');
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100 overflow-x-hidden transition-colors duration-300">
-      {/* Routes without standard Navbar/Footer */}
-      <Routes>
-        <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
-
-        {/* Standard Pages */}
-        <Route
-          path="*"
-          element={
-            <>
-              <Navbar isAdminMode={isAdminMode} onToggleAdmin={() => setIsAdminMode(!isAdminMode)} />
-              <main className="flex-grow">
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <>
-                        <Hero />
-                        <Features />
-                        <HowItWorks />
-                      </>
-                    }
-                  />
-                  <Route path="/resources" element={<ResourcesPage />} />
-                  <Route path="/bookings" element={<MyBookingsPage />} />
-                  <Route path="/tickets" element={<CreateTicket />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </main>
-              <Footer />
-            </>
-          }
+    <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-900 selection:bg-indigo-100 dark:selection:bg-indigo-900 transition-colors duration-300">
+      
+      {/* Only show standard Navbar if NOT in admin mode. 
+          AdminLayout usually provides its own sidebar/nav.
+      */}
+      {!isAdminMode && (
+        <Navbar 
+          setCurrentPage={handleSetCurrentPage} 
+          currentPage={currentPage} 
+          isAdminMode={isAdminMode}
+          onToggleAdmin={() => setIsAdminModeState(!isAdminModeState)}
         />
-      </Routes>
+      )}
+
+      <main className="grow">
+        <Routes>
+          {/* Landing Page Group */}
+          <Route path="/" element={
+            <>
+              <Hero setCurrentPage={handleSetCurrentPage} />
+              <Features />
+              <HowItWorks />
+            </>
+          } />
+
+          {/* Auth Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Register />} />
+
+          {/* Feature Routes */}
+          <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/bookings" element={<MyBookingsPage />} />
+          <Route path="/tickets" element={<CreateTicket setCurrentPage={handleSetCurrentPage} />} />
+          <Route path="/technician" element={<TechnicianDashboard setCurrentPage={handleSetCurrentPage} />} />
+
+          {/* Admin Routes (Nested) */}
+          <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+
+      {!isAdminMode && <Footer isConnected={isBackendConnected} />}
     </div>
   );
 }

@@ -32,7 +32,7 @@ public class TicketCommentService {
 
         // Set user who commented
         Users user = new Users();
-        user.setId(Long.valueOf(request.getCommentedById()));
+        user.setId(request.getCommentedById());
         comment.setCommentedBy(user);
 
         // Set comment text
@@ -69,7 +69,7 @@ public class TicketCommentService {
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
         // Check ownership - only the comment owner or admin can edit
-        if (!comment.getCommentedBy().getId().equals(Long.valueOf(currentUserId))) {
+        if (!comment.getCommentedBy().getId().equals(currentUserId)) {
             throw new RuntimeException("You can only edit your own comments");
         }
 
@@ -86,7 +86,7 @@ public class TicketCommentService {
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
         // Check ownership - only the comment owner or admin can delete
-        if (!comment.getCommentedBy().getId().equals(Long.valueOf(currentUserId))) {
+        if (!comment.getCommentedBy().getId().equals(currentUserId)) {
             throw new RuntimeException("You can only delete your own comments");
         }
 
@@ -98,7 +98,7 @@ public class TicketCommentService {
         TicketCommentResponseDTO dto = new TicketCommentResponseDTO();
         dto.setId(comment.getId());
         dto.setTicketId(comment.getTicket().getId());
-        dto.setCommentedById(comment.getCommentedBy().getId().intValue());
+        dto.setCommentedById(comment.getCommentedBy().getId());
         dto.setCommentedByName(comment.getCommentedBy().getName());
         dto.setComment(comment.getComment());
         dto.setCreatedAt(comment.getCreatedAt());

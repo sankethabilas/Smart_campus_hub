@@ -3,6 +3,10 @@ import ticketService from "../../services/ticketService";
 import type { TicketResponseDTO } from "../../services/ticketService";
 import attachmentService from "../../services/attachmentService";
 
+interface CreateTicketProps {
+  setCurrentPage: (page: string) => void;
+}
+
 interface TicketFormData {
   title: string;
   description: string;
@@ -13,7 +17,7 @@ interface TicketFormData {
   assetId?: number;
 }
 
-const CreateTicket: React.FC = () => {
+const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
   const [formData, setFormData] = useState<TicketFormData>({
     title: "",
     description: "",
@@ -383,6 +387,22 @@ const CreateTicket: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex flex-wrap gap-4 justify-center">
+          <button
+            onClick={() => setCurrentPage("technician-dashboard")}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            📊 Technician Dashboard
+          </button>
+          <button
+            onClick={() => setCurrentPage("ticket-admin")}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            ⚙️ Ticket Administration
+          </button>
         </div>
       </div>
     </div>
