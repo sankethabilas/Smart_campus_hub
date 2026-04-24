@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
+import userService from "../../services/userService";
 import type { TicketResponseDTO } from "../../services/ticketService";
+import type { UserDto } from "../../services/userService";
 
 const TicketAdminPage: React.FC = () => {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
+  const [technicians, setTechnicians] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketResponseDTO | null>(null);
@@ -20,6 +23,7 @@ const TicketAdminPage: React.FC = () => {
 
   useEffect(() => {
     fetchAllTickets();
+    fetchTechnicians();
   }, []);
 
   const fetchAllTickets = async () => {
@@ -32,6 +36,15 @@ const TicketAdminPage: React.FC = () => {
       setError(err instanceof Error ? err.message : "Failed to fetch tickets");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTechnicians = async () => {
+    try {
+      const data = await userService.getTechnicians();
+      setTechnicians(data);
+    } catch (err) {
+      console.error("Failed to fetch technicians:", err);
     }
   };
 
@@ -95,11 +108,9 @@ const TicketAdminPage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      let updatedTicket = selectedTicket;
-
       // Update status if changed
       if (updateStatus && updateStatus !== selectedTicket.status) {
-        updatedTicket = await ticketService.updateTicketStatus(
+        await ticketService.updateTicketStatus(
           selectedTicket.id,
           updateStatus
         );
@@ -107,7 +118,7 @@ const TicketAdminPage: React.FC = () => {
 
       // Assign technician if changed
       if (updateAssignee && updateAssignee !== (selectedTicket.assignedToId?.toString() || "")) {
-        updatedTicket = await ticketService.assignTechnician(
+        await ticketService.assignTechnician(
           selectedTicket.id,
           Number(updateAssignee)
         );
@@ -115,7 +126,7 @@ const TicketAdminPage: React.FC = () => {
 
       // Resolve ticket with notes if status is RESOLVED
       if (updateStatus === "RESOLVED" && resolutionNotes) {
-        updatedTicket = await ticketService.resolveTicket(
+        await ticketService.resolveTicket(
           selectedTicket.id,
           resolutionNotes
         );
@@ -123,22 +134,25 @@ const TicketAdminPage: React.FC = () => {
 
       // Close ticket if status is CLOSED
       if (updateStatus === "CLOSED") {
-        updatedTicket = await ticketService.closeTicket(selectedTicket.id);
+        await ticketService.closeTicket(selectedTicket.id);
       }
 
       // Reject ticket if status is REJECTED
       if (updateStatus === "REJECTED" && rejectionReason) {
-        updatedTicket = await ticketService.rejectTicket(
+        await ticketService.rejectTicket(
           selectedTicket.id,
           rejectionReason
         );
       }
 
+      // ✅ FETCH FRESH COPY OF TICKET FROM BACKEND TO ENSURE ALL FIELDS ARE SYNCED
+      const freshTicket = await ticketService.getTicketById(selectedTicket.id);
+
       setSuccessMessage(`Ticket #${selectedTicket.id} updated successfully!`);
       
-      // Update the ticket in the list
+      // Update the ticket in the list with fresh data
       setTickets(
-        tickets.map((t) => (t.id === updatedTicket.id ? updatedTicket : t))
+        tickets.map((t) => (t.id === freshTicket.id ? freshTicket : t))
       );
 
       // Reset form after 2 seconds
@@ -331,15 +345,20 @@ const TicketAdminPage: React.FC = () => {
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
-                          Assign to Technician ID
+                          Assign to Technician *
                         </label>
-                        <input
-                          type="number"
+                        <select
                           value={updateAssignee}
                           onChange={(e) => setUpdateAssignee(e.target.value)}
-                          placeholder="Enter technician ID"
                           className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                        />
+                        >
+                          <option value="">Select a technician</option>
+                          {technicians.map((tech) => (
+                            <option key={tech.id} value={tech.id.toString()}>
+                              {tech.name} (ID: {tech.id}) - {tech.email}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div>

@@ -34,7 +34,7 @@ export interface TicketStatusUpdateDTO {
 }
 
 export interface TicketAssignDTO {
-  assignedToId: number;
+  technicianId: number;
 }
 
 class TicketService {
@@ -84,7 +84,7 @@ class TicketService {
     try {
       const response = await axiosInstance.put<TicketResponseDTO>(
         `/tickets/${ticketId}/assign`,
-        { assignedToId }
+        { technicianId: assignedToId }
       );
       return response.data;
     } catch (error: unknown) {

@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
+import userService from "../../services/userService";
 import type { TicketResponseDTO } from "../../services/ticketService";
+import type { UserDto } from "../../services/userService";
 
 interface TechnicianDashboardProps {
   setCurrentPage: (page: string) => void;
 }
 
-interface UserResponse {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  role: string;
-}
-
 const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
-  const [technician, setTechnician] = useState<UserResponse | null>(null);
+  const [technician, setTechnician] = useState<UserDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketResponseDTO | null>(null);
@@ -32,19 +26,35 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
     setLoading(true);
     setError(null);
     setSelectedTicket(null);
+
     try {
-      // Fetch technician user (ID 2)
-      const userResponse = await fetch("http://localhost:8081/users/2");
-      if (!userResponse.ok) {
-        throw new Error("Failed to fetch technician data");
+      // ✅ Get all technicians instead of /users/{id}
+      const technicians = await userService.getTechnicians();
+
+      // ✅ Pick technician with ID 2
+      const technicianData = technicians.find(t => t.id === 2);
+
+      if (!technicianData) {
+        throw new Error("Technician not found");
       }
-      const technicianData: UserResponse = await userResponse.json();
+
       setTechnician(technicianData);
 
-      // Fetch all tickets and filter by assigned technician
+      // ✅ Fetch tickets
       const allTickets = await ticketService.getAllTickets();
-      const assignedTickets = allTickets.filter(ticket => ticket.assignedToId === technicianData.id);
+
+      console.log("ALL TICKETS:", allTickets); // DEBUG
+      console.log("TECH ID:", technicianData.id); // DEBUG
+
+      // ✅ SAFE FILTER (handles number/string issues)
+      const assignedTickets = allTickets.filter(
+        ticket => Number(ticket.assignedToId) === Number(technicianData.id)
+      );
+
+      console.log("ASSIGNED TICKETS:", assignedTickets); // DEBUG
+
       setTickets(assignedTickets);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch technician or tickets");
     } finally {
