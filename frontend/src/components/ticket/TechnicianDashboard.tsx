@@ -6,7 +6,7 @@ interface TechnicianDashboardProps {
   setCurrentPage: (page: string) => void;
 }
 
-const TechnicianDashboard: React.FC<TechnicianDashboardProps> = ({ setCurrentPage }) => {
+const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
