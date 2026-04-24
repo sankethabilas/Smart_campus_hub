@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router-dom';
 interface NavbarProps {
   setCurrentPage: (page: string) => void;
   currentPage: string;
+  isAdminMode: boolean;
+  onToggleAdmin: () => void;
 }
 
-export default function Navbar({ setCurrentPage, currentPage }: NavbarProps) {
+export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onToggleAdmin }: NavbarProps) {
     const navigate = useNavigate();
 
     // Merged links: Using 'page' for the state and 'path' for the router
@@ -76,7 +78,9 @@ export default function Navbar({ setCurrentPage, currentPage }: NavbarProps) {
                             Login
                         </button>
                         
-                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5">
+                        <button
+                            onClick={() => navigate('/signup')} 
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5">
                             Sign Up
                         </button>
                     </div>

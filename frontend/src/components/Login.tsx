@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
@@ -230,9 +230,12 @@ export default function Login() {
                         </a>
                         <div className="text-sm text-slate-600 dark:text-slate-400">
                             Don't have an account?{' '}
-                            <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium">
+                            <Link
+                                to="/signup"
+                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium"
+                            >
                                 Sign up
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </form>
