@@ -90,7 +90,7 @@ function App() {
             </>
           } />
 
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setIsAdminMode={setIsAdminMode} />} />
           <Route path="/signup" element={<Register />} />
           <Route path="/tickets" element={<CreateTicket setCurrentPage={handleSetCurrentPage} />} />
           <Route path="/technician" element={<TechnicianDashboard setCurrentPage={handleSetCurrentPage} />} />

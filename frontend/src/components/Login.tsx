@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 
 interface LoginProps {
     onBack?: () => void;
+    setIsAdminMode: (isAdmin: boolean) => void;
 }
 
 interface LoginFormData {
@@ -20,7 +21,7 @@ interface JwtPayload {
     exp: number
 }
 
-export default function Login({ onBack }: LoginProps) {
+export default function Login({ onBack, setIsAdminMode }: LoginProps) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
@@ -79,6 +80,7 @@ export default function Login({ onBack }: LoginProps) {
     const redirectUser = (role: string) => {
         switch (role) {
             case 'ADMIN':
+                setIsAdminMode(true);
                 navigate('/admin')
                 break;
             case 'TECHNICIAN':
