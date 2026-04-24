@@ -46,10 +46,9 @@ export default function Login({ onBack, setIsAdminMode }: LoginProps) {
         setIsLoading(true);
         setError('');
 
-        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
         try {
             // TODO: Implement actual login API call
-            const response = await fetch(`${BACKEND_URL}/auth/login`, {
+            const response = await fetch('http://localhost:8080/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,9 +74,8 @@ export default function Login({ onBack, setIsAdminMode }: LoginProps) {
     };
 
     const handleGoogleSignIn = () => {
-        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
-        window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
-    };
+        window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+    }
 
     const redirectUser = (role: string) => {
         switch (role) {
