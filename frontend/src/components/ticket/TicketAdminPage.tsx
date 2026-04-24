@@ -17,7 +17,6 @@ const TicketAdminPage: React.FC = () => {
   // Form states for updating ticket
   const [updateStatus, setUpdateStatus] = useState("");
   const [updateAssignee, setUpdateAssignee] = useState("");
-  const [resolutionNotes, setResolutionNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -95,7 +94,6 @@ const TicketAdminPage: React.FC = () => {
     setSelectedTicket(ticket);
     setUpdateStatus(ticket.status);
     setUpdateAssignee(ticket.assignedToId?.toString() || "");
-    setResolutionNotes(ticket.resolutionNotes || "");
     setRejectionReason(ticket.rejectionReason || "");
     setSuccessMessage(null);
   };
@@ -108,13 +106,7 @@ const TicketAdminPage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      // Update status if changed
-      if (updateStatus && updateStatus !== selectedTicket.status) {
-        await ticketService.updateTicketStatus(
-          selectedTicket.id,
-          updateStatus
-        );
-      }
+      // ✅ ADMIN RESPONSIBILITIES: Assign, Reject, Close only
 
       // Assign technician if changed
       if (updateAssignee && updateAssignee !== (selectedTicket.assignedToId?.toString() || "")) {
@@ -124,25 +116,17 @@ const TicketAdminPage: React.FC = () => {
         );
       }
 
-      // Resolve ticket with notes if status is RESOLVED
-      if (updateStatus === "RESOLVED" && resolutionNotes) {
-        await ticketService.resolveTicket(
-          selectedTicket.id,
-          resolutionNotes
-        );
-      }
-
-      // Close ticket if status is CLOSED
-      if (updateStatus === "CLOSED") {
-        await ticketService.closeTicket(selectedTicket.id);
-      }
-
-      // Reject ticket if status is REJECTED
+      // Reject ticket if status is REJECTED (Admin only)
       if (updateStatus === "REJECTED" && rejectionReason) {
         await ticketService.rejectTicket(
           selectedTicket.id,
           rejectionReason
         );
+      }
+
+      // Close ticket if status is CLOSED (Admin only - after technician resolves)
+      if (updateStatus === "CLOSED") {
+        await ticketService.closeTicket(selectedTicket.id);
       }
 
       // ✅ FETCH FRESH COPY OF TICKET FROM BACKEND TO ENSURE ALL FIELDS ARE SYNCED
@@ -314,6 +298,12 @@ const TicketAdminPage: React.FC = () => {
                     )}
 
                     <form onSubmit={handleUpdateTicket} className="space-y-4">
+                      <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 mb-4">
+                        <p className="text-xs font-semibold text-blue-800">
+                          👨‍💼 ADMIN PANEL - Assign & Manage Tickets
+                        </p>
+                      </div>
+
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
                           Title
@@ -328,19 +318,14 @@ const TicketAdminPage: React.FC = () => {
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
-                          Status *
+                          Status
                         </label>
-                        <select
-                          value={updateStatus}
-                          onChange={(e) => setUpdateStatus(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                        >
-                          <option value="OPEN">Open</option>
-                          <option value="IN_PROGRESS">In Progress</option>
-                          <option value="RESOLVED">Resolved</option>
-                          <option value="REJECTED">Rejected</option>
-                          <option value="CLOSED">Closed</option>
-                        </select>
+                        <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-300">
+                          Current: <span className="font-semibold">{selectedTicket.status}</span>
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          ℹ️ Status updates are managed by technicians. You can REJECT or CLOSE tickets.
+                        </p>
                       </div>
 
                       <div>
@@ -375,15 +360,17 @@ const TicketAdminPage: React.FC = () => {
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
-                          Resolution Notes
+                          Action on Ticket
                         </label>
-                        <textarea
-                          value={resolutionNotes}
-                          onChange={(e) => setResolutionNotes(e.target.value)}
-                          placeholder="Add resolution notes..."
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none"
-                        ></textarea>
+                        <select
+                          value={updateStatus}
+                          onChange={(e) => setUpdateStatus(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        >
+                          <option value="">Select action...</option>
+                          <option value="REJECTED">Reject (Invalid Ticket)</option>
+                          <option value="CLOSED">Close (After Resolved)</option>
+                        </select>
                       </div>
 
                       {updateStatus === "REJECTED" && (
@@ -412,6 +399,20 @@ const TicketAdminPage: React.FC = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50 text-gray-600 cursor-not-allowed text-sm"
                         />
                       </div>
+
+                      {selectedTicket.resolutionNotes && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                            Resolution Notes (Technician)
+                          </label>
+                          <textarea
+                            value={selectedTicket.resolutionNotes}
+                            disabled
+                            rows={3}
+                            className="w-full px-3 py-2 border border-green-300 rounded bg-green-50 text-gray-600 cursor-not-allowed text-sm resize-none"
+                          ></textarea>
+                        </div>
+                      )}
 
                       <button
                         type="submit"

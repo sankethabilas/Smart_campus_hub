@@ -17,6 +17,11 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterPriority, setFilterPriority] = useState("ALL");
 
+  // ✅ TECHNICIAN UPDATE FORM STATES
+  const [updateStatus, setUpdateStatus] = useState("");
+  const [resolutionNotes, setResolutionNotes] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   // Fetch technician and their tickets on component mount
   useEffect(() => {
     fetchTechnicianAndTickets();
@@ -59,6 +64,61 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
       setError(err instanceof Error ? err.message : "Failed to fetch technician or tickets");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ TECHNICIAN: Handle ticket selection with form reset
+  const handleSelectTicket = (ticket: TicketResponseDTO) => {
+    setSelectedTicket(ticket);
+    setUpdateStatus(ticket.status);
+    setResolutionNotes(ticket.resolutionNotes || "");
+    setSuccessMessage(null);
+  };
+
+  // ✅ TECHNICIAN: Update ticket status and resolution notes
+  const handleUpdateTicket = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTicket) return;
+
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      // ✅ TECHNICIAN RESPONSIBILITIES: Mark IN_PROGRESS or RESOLVED with notes only
+
+      // Mark as IN_PROGRESS when starting work
+      if (updateStatus === "IN_PROGRESS" && updateStatus !== selectedTicket.status) {
+        await ticketService.updateTicketStatus(
+          selectedTicket.id,
+          updateStatus
+        );
+      }
+
+      // Mark as RESOLVED with resolution notes (Technician job)
+      if (updateStatus === "RESOLVED" && resolutionNotes) {
+        await ticketService.resolveTicket(
+          selectedTicket.id,
+          resolutionNotes
+        );
+      }
+
+      // ✅ FETCH FRESH COPY TO SYNC ALL FIELDS
+      const freshTicket = await ticketService.getTicketById(selectedTicket.id);
+
+      setSuccessMessage(`Ticket #${selectedTicket.id} updated successfully!`);
+      
+      // Update ticket in list
+      setTickets(
+        tickets.map((t) => (t.id === freshTicket.id ? freshTicket : t))
+      );
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        setSelectedTicket(null);
+        setSuccessMessage(null);
+      }, 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update ticket");
     }
   };
 
@@ -186,7 +246,7 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
                   {filteredTickets.map((ticket) => (
                     <div
                       key={ticket.id}
-                      onClick={() => setSelectedTicket(ticket)}
+                      onClick={() => handleSelectTicket(ticket)}
                       className={`p-6 rounded-lg shadow-md cursor-pointer transition duration-300 ease-in-out ${
                         selectedTicket?.id === ticket.id
                           ? "bg-blue-50 border-2 border-blue-500"
@@ -230,23 +290,35 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
               )}
             </div>
 
-            {/* Ticket Details Panel */}
+            {/* Update Ticket Panel */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
                 {selectedTicket ? (
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                      Ticket Details
+                    <div className="bg-green-50 border border-green-300 rounded-lg p-3 mb-4">
+                      <p className="text-xs font-semibold text-green-800">
+                        🧑‍🔧 TECHNICIAN PANEL - Update Status & Add Notes
+                      </p>
+                    </div>
+
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Ticket #{selectedTicket.id}
                     </h3>
 
-                    <div className="space-y-4">
+                    {successMessage && (
+                      <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-800 border border-green-300 text-sm">
+                        ✓ {successMessage}
+                      </div>
+                    )}
+
+                    <div className="space-y-3 mb-6 pb-4 border-b border-gray-200">
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">ID</p>
-                        <p className="text-gray-800">#{selectedTicket.id}</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase">Title</p>
+                        <p className="text-gray-800 text-sm">{selectedTicket.title}</p>
                       </div>
 
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">Status</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase">Current Status</p>
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
                             selectedTicket.status
@@ -268,93 +340,67 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
                       </div>
 
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">
-                          Reported By
-                        </p>
-                        <p className="text-gray-800">User #{selectedTicket.reportedById}</p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">
-                          Assigned To
-                        </p>
-                        <p className="text-gray-800">
-                          {technician ? `${technician.name} (ID: ${technician.id})` : "Technician"}
-                        </p>
-                      </div>
-
-                      {selectedTicket.locationId && (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase">
-                            Location
-                          </p>
-                          <p className="text-gray-800">#{selectedTicket.locationId}</p>
-                        </div>
-                      )}
-
-                      {selectedTicket.assetId && (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase">Asset</p>
-                          <p className="text-gray-800">#{selectedTicket.assetId}</p>
-                        </div>
-                      )}
-
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">Contact</p>
-                        <p className="text-gray-800">{selectedTicket.contact}</p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">
-                          Created At
-                        </p>
-                        <p className="text-gray-800">
-                          {new Date(selectedTicket.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                          Description
-                        </p>
-                        <p className="text-gray-700 text-sm bg-gray-50 p-3 rounded border border-gray-200">
+                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Description</p>
+                        <p className="text-gray-700 text-xs bg-gray-50 p-2 rounded">
                           {selectedTicket.description}
                         </p>
                       </div>
-
-                      {selectedTicket.resolutionNotes && (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                            Resolution Notes
-                          </p>
-                          <p className="text-gray-700 text-sm bg-green-50 p-3 rounded border border-green-200">
-                            {selectedTicket.resolutionNotes}
-                          </p>
-                        </div>
-                      )}
-
-                      {selectedTicket.rejectionReason && (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                            Rejection Reason
-                          </p>
-                          <p className="text-gray-700 text-sm bg-red-50 p-3 rounded border border-red-200">
-                            {selectedTicket.rejectionReason}
-                          </p>
-                        </div>
-                      )}
                     </div>
 
-                    <button
-                      onClick={() => setSelectedTicket(null)}
-                      className="w-full mt-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded-lg transition duration-300"
-                    >
-                      Clear Selection
-                    </button>
+                    <form onSubmit={handleUpdateTicket} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                          Update Status *
+                        </label>
+                        <select
+                          value={updateStatus}
+                          onChange={(e) => setUpdateStatus(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                        >
+                          <option value="OPEN">Open (No Action)</option>
+                          <option value="IN_PROGRESS">In Progress (Start Work)</option>
+                          <option value="RESOLVED">Resolved (Complete Work)</option>
+                        </select>
+                      </div>
+
+                      {updateStatus === "RESOLVED" && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                            Resolution Notes *
+                          </label>
+                          <textarea
+                            value={resolutionNotes}
+                            onChange={(e) => setResolutionNotes(e.target.value)}
+                            placeholder="Describe what you did to fix the issue..."
+                            rows={4}
+                            className="w-full px-3 py-2 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm resize-none"
+                          ></textarea>
+                          <p className="text-xs text-gray-500 mt-1">
+                            ℹ️ Required when marking ticket as RESOLVED
+                          </p>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={updateStatus === "OPEN"}
+                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2 rounded-lg transition duration-300 text-sm"
+                      >
+                        Update Ticket
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedTicket(null)}
+                        className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded-lg transition duration-300 text-sm"
+                      >
+                        Close
+                      </button>
+                    </form>
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">Select a ticket to view details</p>
+                    <p className="text-gray-500">Select a ticket to update</p>
                   </div>
                 )}
               </div>
