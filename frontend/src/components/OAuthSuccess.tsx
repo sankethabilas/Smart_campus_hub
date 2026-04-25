@@ -17,10 +17,10 @@ export default function OAuthSuccess() {
                 // Use navigate() for internal SPA routing
                 switch (decoded.role) {
                     case 'ADMIN':
-                        navigate('/admin-dashboard');
+                        navigate('/admin');
                         break;
                     case 'TECHNICIAN':
-                        navigate('/technician-dashboard');
+                        navigate('/technician');
                         break;
                     default:
                         navigate('/dashboard');
