@@ -1,7 +1,6 @@
-import { Building2, Moon, Sun } from 'lucide-react';
+import { Building2, Moon, Sun, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Define props to keep the incoming branch's state logic
 interface NavbarProps {
   setCurrentPage: (page: string) => void;
   currentPage?: string;
@@ -11,8 +10,10 @@ interface NavbarProps {
 
 export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onToggleAdmin }: NavbarProps) {
     const navigate = useNavigate();
+    
+    // Check if token exists to determine if user is logged in
+    const isLoggedIn = !!localStorage.getItem('token');
 
-    // Merged links: Using 'page' for the state and 'path' for the router
     const navLinks = [
         { name: 'Home', page: 'home', path: '/' },
         { name: 'Facilities', page: 'facilities', path: '/facilities' },
@@ -22,8 +23,18 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
     ];
 
     const handleNavigation = (page: string, path: string) => {
-        setCurrentPage(page); // Keeps the incoming state logic
-        navigate(path);       // Keeps your router logic
+        setCurrentPage(page);
+        navigate(path);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // Remove the token
+        // If you store user data elsewhere, clear that too:
+        // localStorage.removeItem('user'); 
+        
+        setCurrentPage('home');
+        navigate('/');
+        // Optional: window.location.reload(); // Useful if your app state doesn't auto-update
     };
 
     return (
@@ -31,7 +42,7 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
 
-                    {/* Logo Section (Your Branch) */}
+                    {/* Logo Section */}
                     <div 
                         className="flex items-center gap-2 cursor-pointer group"
                         onClick={() => handleNavigation('home', '/')}
@@ -44,7 +55,7 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
                         </span>
                     </div>
 
-                    {/* Navigation Links - Desktop (Merged Logic) */}
+                    {/* Navigation Links - Desktop */}
                     <div className="hidden md:flex items-center gap-8">
                         {navLinks.map((link) => (
                             <button
@@ -61,7 +72,7 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
                         ))}
                     </div>
 
-                    {/* Action Buttons (Your Branch) */}
+                    {/* Action Buttons */}
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => document.documentElement.classList.toggle('dark')}
@@ -72,17 +83,29 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
                             <Sun className="w-5 h-5 hidden dark:block" />
                         </button>
                         
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 transition-colors">
-                            Login
-                        </button>
-                        
-                        <button
-                            onClick={() => navigate('/signup')} 
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5">
-                            Sign Up
-                        </button>
+                        {!isLoggedIn ? (
+                            <>
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 transition-colors">
+                                    Login
+                                </button>
+                                
+                                <button
+                                    onClick={() => navigate('/signup')} 
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5">
+                                    Sign Up
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-rose-100"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Logout
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
