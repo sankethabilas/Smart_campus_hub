@@ -15,7 +15,6 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
         { name: 'Facilities', page: 'resources', path: '/resources' },
         { name: 'Bookings', page: 'bookings', path: '/bookings' },
         { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
-        { name: 'Dashboard', page: 'dashboard', path: '/dashboard' },
     ];
 
   return (
