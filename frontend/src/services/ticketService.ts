@@ -37,6 +37,15 @@ export interface TicketAssignDTO {
   technicianId: number;
 }
 
+export interface TicketUpdateDTO {
+  title?: string;
+  description?: string;
+  contact?: string;
+  priority?: string;
+  assetId?: number;
+  locationId?: number;
+}
+
 class TicketService {
   /**
    * Get all tickets
@@ -163,6 +172,38 @@ class TicketService {
         throw new Error(`Failed to reject ticket: ${error.message}`);
       }
       throw new Error('Failed to reject ticket: Unknown error');
+    }
+  }
+
+  /**
+   * Update ticket
+   */
+  async updateTicket(ticketId: number, ticketData: TicketUpdateDTO): Promise<TicketResponseDTO> {
+    try {
+      const response = await axiosInstance.put<TicketResponseDTO>(
+        `/tickets/${ticketId}`,
+        ticketData
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to update ticket: ${error.message}`);
+      }
+      throw new Error('Failed to update ticket: Unknown error');
+    }
+  }
+
+  /**
+   * Delete ticket
+   */
+  async deleteTicket(ticketId: number): Promise<void> {
+    try {
+      await axiosInstance.delete(`/tickets/${ticketId}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to delete ticket: ${error.message}`);
+      }
+      throw new Error('Failed to delete ticket: Unknown error');
     }
   }
 }

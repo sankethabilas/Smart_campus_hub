@@ -166,6 +166,39 @@ public class TicketAttachmentService {
                 .collect(Collectors.toList());
     }
 
+    // DELETE ATTACHMENT
+    public void deleteAttachment(Integer attachmentId) {
+        logger.info("Starting deletion of attachment: {}", attachmentId);
+
+        TicketAttachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> {
+                    logger.error("Attachment not found with ID: {}", attachmentId);
+                    return new RuntimeException("Attachment not found");
+                });
+
+        try {
+            // Delete file from file system
+            Path filePath = Paths.get(attachment.getFilePath());
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                logger.info("File successfully deleted from: {}", filePath.toAbsolutePath());
+            } else {
+                logger.warn("File not found at: {}", filePath.toAbsolutePath());
+            }
+
+            // Delete from database
+            attachmentRepository.delete(attachment);
+            logger.info("Attachment record successfully deleted from database: {}", attachmentId);
+
+        } catch (IOException e) {
+            logger.error("IO error while deleting file for attachment {}: {}", attachmentId, e.getMessage(), e);
+            throw new RuntimeException("Failed to delete file: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while deleting attachment {}: {}", attachmentId, e.getMessage(), e);
+            throw new RuntimeException("Failed to delete attachment: " + e.getMessage(), e);
+        }
+    }
+
     // ENTITY → DTO
     private TicketAttachmentResponseDTO convertToDTO(TicketAttachment att) {
 

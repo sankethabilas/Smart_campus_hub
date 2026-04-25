@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
 import userService from "../../services/userService";
+import attachmentService from "../../services/attachmentService";
 import type { TicketResponseDTO } from "../../services/ticketService";
+import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
 import type { UserDto } from "../../services/userService";
 
 const TicketAdminPage: React.FC = () => {
@@ -13,6 +15,8 @@ const TicketAdminPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterPriority, setFilterPriority] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [attachments, setAttachments] = useState<TicketAttachmentResponseDTO[]>([]);
+  const [loadingAttachments, setLoadingAttachments] = useState(false);
 
   // Form states for updating ticket
   const [updateStatus, setUpdateStatus] = useState("");
@@ -90,12 +94,24 @@ const TicketAdminPage: React.FC = () => {
     }
   };
 
-  const handleSelectTicket = (ticket: TicketResponseDTO) => {
+  const handleSelectTicket = async (ticket: TicketResponseDTO) => {
     setSelectedTicket(ticket);
     setUpdateStatus(ticket.status);
     setUpdateAssignee(ticket.assignedToId?.toString() || "");
     setRejectionReason(ticket.rejectionReason || "");
     setSuccessMessage(null);
+    
+    // Fetch attachments for selected ticket
+    setLoadingAttachments(true);
+    try {
+      const ticketAttachments = await attachmentService.getAttachments(ticket.id);
+      setAttachments(ticketAttachments);
+    } catch (err) {
+      console.error("Failed to fetch attachments:", err);
+      setAttachments([]);
+    } finally {
+      setLoadingAttachments(false);
+    }
   };
 
   const handleUpdateTicket = async (e: React.FormEvent) => {
@@ -414,12 +430,39 @@ const TicketAdminPage: React.FC = () => {
                         </div>
                       )}
 
-                      <button
-                        type="submit"
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition duration-300 text-sm"
-                      >
-                        Update Ticket
-                      </button>
+                      {/* Attachments Section */}
+                      {!loadingAttachments && attachments.length > 0 && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                            📎 Attachments ({attachments.length})
+                          </label>
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {attachments.map((attachment) => (
+                              <div key={attachment.id} className="bg-gray-50 p-2 rounded border border-gray-200">
+                                <p className="text-xs font-medium text-gray-700">{attachment.fileName}</p>
+                                <p className="text-xs text-gray-500">{new Date(attachment.uploadedAt).toLocaleDateString()}</p>
+                                {attachment.filePath && (
+                                  <img
+                                    src={attachment.filePath}
+                                    alt={attachment.fileName}
+                                    className="mt-2 max-w-full h-auto rounded border border-gray-300 cursor-pointer hover:opacity-90"
+                                    onClick={() => window.open(attachment.filePath, "_blank")}
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="border-t pt-4">
+                        <button
+                          type="submit"
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition duration-300 text-sm"
+                        >
+                          Update Ticket
+                        </button>
+                      </div>
 
                       <button
                         type="button"

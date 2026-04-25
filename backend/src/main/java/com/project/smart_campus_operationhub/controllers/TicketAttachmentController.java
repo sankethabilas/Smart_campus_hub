@@ -34,4 +34,12 @@ public class TicketAttachmentController {
             @PathVariable Integer ticketId) {
         return attachmentService.getAttachmentsByTicket(ticketId);
     }
+
+    // DELETE ATTACHMENT
+    @DeleteMapping("/{attachmentId}")
+    public void deleteAttachment(
+            @PathVariable Integer ticketId,
+            @PathVariable Integer attachmentId) {
+        attachmentService.deleteAttachment(attachmentId);
+    }
 }
