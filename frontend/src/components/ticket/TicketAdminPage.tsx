@@ -1,25 +1,32 @@
 import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
+import userService from "../../services/userService";
+import attachmentService from "../../services/attachmentService";
 import type { TicketResponseDTO } from "../../services/ticketService";
+import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
+import type { UserDto } from "../../services/userService";
 
 const TicketAdminPage: React.FC = () => {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
+  const [technicians, setTechnicians] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketResponseDTO | null>(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterPriority, setFilterPriority] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [attachments, setAttachments] = useState<TicketAttachmentResponseDTO[]>([]);
+  const [loadingAttachments, setLoadingAttachments] = useState(false);
 
   // Form states for updating ticket
   const [updateStatus, setUpdateStatus] = useState("");
   const [updateAssignee, setUpdateAssignee] = useState("");
-  const [resolutionNotes, setResolutionNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAllTickets();
+    fetchTechnicians();
   }, []);
 
   const fetchAllTickets = async () => {
@@ -32,6 +39,15 @@ const TicketAdminPage: React.FC = () => {
       setError(err instanceof Error ? err.message : "Failed to fetch tickets");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTechnicians = async () => {
+    try {
+      const data = await userService.getTechnicians();
+      setTechnicians(data);
+    } catch (err) {
+      console.error("Failed to fetch technicians:", err);
     }
   };
 
@@ -78,13 +94,24 @@ const TicketAdminPage: React.FC = () => {
     }
   };
 
-  const handleSelectTicket = (ticket: TicketResponseDTO) => {
+  const handleSelectTicket = async (ticket: TicketResponseDTO) => {
     setSelectedTicket(ticket);
     setUpdateStatus(ticket.status);
     setUpdateAssignee(ticket.assignedToId?.toString() || "");
-    setResolutionNotes(ticket.resolutionNotes || "");
     setRejectionReason(ticket.rejectionReason || "");
     setSuccessMessage(null);
+    
+    // Fetch attachments for selected ticket
+    setLoadingAttachments(true);
+    try {
+      const ticketAttachments = await attachmentService.getAttachments(ticket.id);
+      setAttachments(ticketAttachments);
+    } catch (err) {
+      console.error("Failed to fetch attachments:", err);
+      setAttachments([]);
+    } finally {
+      setLoadingAttachments(false);
+    }
   };
 
   const handleUpdateTicket = async (e: React.FormEvent) => {
@@ -95,17 +122,44 @@ const TicketAdminPage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      // Since we don't have an update endpoint yet, we'll show a success message
-      // In real implementation, this would call an update API endpoint
-      setSuccessMessage(
-        `Ticket #${selectedTicket.id} would be updated with status: ${updateStatus}, assignee: ${updateAssignee}`
+      // ✅ ADMIN RESPONSIBILITIES: Assign, Reject, Close only
+
+      // Assign technician if changed
+      if (updateAssignee && updateAssignee !== (selectedTicket.assignedToId?.toString() || "")) {
+        await ticketService.assignTechnician(
+          selectedTicket.id,
+          Number(updateAssignee)
+        );
+      }
+
+      // Reject ticket if status is REJECTED (Admin only)
+      if (updateStatus === "REJECTED" && rejectionReason) {
+        await ticketService.rejectTicket(
+          selectedTicket.id,
+          rejectionReason
+        );
+      }
+
+      // Close ticket if status is CLOSED (Admin only - after technician resolves)
+      if (updateStatus === "CLOSED") {
+        await ticketService.closeTicket(selectedTicket.id);
+      }
+
+      // ✅ FETCH FRESH COPY OF TICKET FROM BACKEND TO ENSURE ALL FIELDS ARE SYNCED
+      const freshTicket = await ticketService.getTicketById(selectedTicket.id);
+
+      setSuccessMessage(`Ticket #${selectedTicket.id} updated successfully!`);
+      
+      // Update the ticket in the list with fresh data
+      setTickets(
+        tickets.map((t) => (t.id === freshTicket.id ? freshTicket : t))
       );
 
-      // Reset form after 3 seconds
+      // Reset form after 2 seconds
       setTimeout(() => {
         setSelectedTicket(null);
         setSuccessMessage(null);
-      }, 3000);
+      }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update ticket");
     }
@@ -260,6 +314,12 @@ const TicketAdminPage: React.FC = () => {
                     )}
 
                     <form onSubmit={handleUpdateTicket} className="space-y-4">
+                      <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 mb-4">
+                        <p className="text-xs font-semibold text-blue-800">
+                          👨‍💼 ADMIN PANEL - Assign & Manage Tickets
+                        </p>
+                      </div>
+
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
                           Title
@@ -274,32 +334,32 @@ const TicketAdminPage: React.FC = () => {
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
-                          Status *
+                          Status
                         </label>
-                        <select
-                          value={updateStatus}
-                          onChange={(e) => setUpdateStatus(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                        >
-                          <option value="OPEN">Open</option>
-                          <option value="IN_PROGRESS">In Progress</option>
-                          <option value="RESOLVED">Resolved</option>
-                          <option value="REJECTED">Rejected</option>
-                          <option value="CLOSED">Closed</option>
-                        </select>
+                        <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-300">
+                          Current: <span className="font-semibold">{selectedTicket.status}</span>
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          ℹ️ Status updates are managed by technicians. You can REJECT or CLOSE tickets.
+                        </p>
                       </div>
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
-                          Assign to Technician ID
+                          Assign to Technician *
                         </label>
-                        <input
-                          type="number"
+                        <select
                           value={updateAssignee}
                           onChange={(e) => setUpdateAssignee(e.target.value)}
-                          placeholder="Enter technician ID"
                           className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                        />
+                        >
+                          <option value="">Select a technician</option>
+                          {technicians.map((tech) => (
+                            <option key={tech.id} value={tech.id.toString()}>
+                              {tech.name} (ID: {tech.id}) - {tech.email}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div>
@@ -316,15 +376,17 @@ const TicketAdminPage: React.FC = () => {
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
-                          Resolution Notes
+                          Action on Ticket
                         </label>
-                        <textarea
-                          value={resolutionNotes}
-                          onChange={(e) => setResolutionNotes(e.target.value)}
-                          placeholder="Add resolution notes..."
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none"
-                        ></textarea>
+                        <select
+                          value={updateStatus}
+                          onChange={(e) => setUpdateStatus(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        >
+                          <option value="">Select action...</option>
+                          <option value="REJECTED">Reject (Invalid Ticket)</option>
+                          <option value="CLOSED">Close (After Resolved)</option>
+                        </select>
                       </div>
 
                       {updateStatus === "REJECTED" && (
@@ -354,12 +416,53 @@ const TicketAdminPage: React.FC = () => {
                         />
                       </div>
 
-                      <button
-                        type="submit"
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition duration-300 text-sm"
-                      >
-                        Update Ticket
-                      </button>
+                      {selectedTicket.resolutionNotes && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                            Resolution Notes (Technician)
+                          </label>
+                          <textarea
+                            value={selectedTicket.resolutionNotes}
+                            disabled
+                            rows={3}
+                            className="w-full px-3 py-2 border border-green-300 rounded bg-green-50 text-gray-600 cursor-not-allowed text-sm resize-none"
+                          ></textarea>
+                        </div>
+                      )}
+
+                      {/* Attachments Section */}
+                      {!loadingAttachments && attachments.length > 0 && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                            📎 Attachments ({attachments.length})
+                          </label>
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {attachments.map((attachment) => (
+                              <div key={attachment.id} className="bg-gray-50 p-2 rounded border border-gray-200">
+                                <p className="text-xs font-medium text-gray-700">{attachment.fileName}</p>
+                                <p className="text-xs text-gray-500">{new Date(attachment.uploadedAt).toLocaleDateString()}</p>
+                                {attachment.filePath && (
+                                  <img
+                                    src={attachment.filePath}
+                                    alt={attachment.fileName}
+                                    className="mt-2 max-w-full h-auto rounded border border-gray-300 cursor-pointer hover:opacity-90"
+                                    onClick={() => window.open(attachment.filePath, "_blank")}
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="border-t pt-4">
+                        <button
+                          type="submit"
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition duration-300 text-sm"
+                        >
+                          Update Ticket
+                        </button>
+                      </div>
 
                       <button
                         type="button"
