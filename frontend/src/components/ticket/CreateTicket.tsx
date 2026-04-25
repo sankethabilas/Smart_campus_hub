@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { fetchCurrentUser } from "../../services/authService";
 import ticketService from "../../services/ticketService";
 import type { TicketResponseDTO, TicketUpdateDTO } from "../../services/ticketService";
 import attachmentService from "../../services/attachmentService";
@@ -29,10 +30,24 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
     description: "",
     priority: "Medium",
     contact: "",
-    reportedById: 1, // Default user ID - should come from auth context
+    reportedById: 0, // Will be set after fetching user
     locationId: undefined,
     assetId: undefined,
   });
+
+  // On mount, fetch current user and set reportedById
+  useEffect(() => {
+    async function setUserId() {
+      try {
+        const user = await fetchCurrentUser();
+        setFormData(prev => ({ ...prev, reportedById: user.id }));
+      } catch (err) {
+        // Optionally handle error
+      }
+    }
+    setUserId();
+    // eslint-disable-next-line
+  }, []);
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [_submitted, setSubmitted] = useState(false);
@@ -385,20 +400,7 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
                   </select>
                 </div>
 
-                <div>
-                  <label htmlFor="reportedById" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Your User ID *
-                  </label>
-                  <input
-                    type="number"
-                    id="reportedById"
-                    name="reportedById"
-                    value={formData.reportedById}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                {/* User ID is now set automatically from logged-in user */}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

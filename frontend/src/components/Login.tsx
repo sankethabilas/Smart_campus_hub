@@ -83,14 +83,14 @@ export default function Login({ setIsAdminMode }: LoginProps) {
         switch (role) {
             case 'ADMIN':
                 setIsAdminMode(true);
-                navigate('/admin')
+                navigate('/admin-dashboard');
                 break;
             case 'TECHNICIAN':
                 navigate('/technician-dashboard');
                 break;
             case 'USER':
             default:
-                navigate('/dashboard')
+                navigate('/dashboard');
         }
     }
 

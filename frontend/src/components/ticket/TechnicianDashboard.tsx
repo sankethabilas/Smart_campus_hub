@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
-import userService from "../../services/userService";
+// import userService from "../../services/userService";
+import { fetchCurrentUser } from "../../services/authService";
 import attachmentService from "../../services/attachmentService";
 import type { TicketResponseDTO } from "../../services/ticketService";
 import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
@@ -27,6 +28,7 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Fetch technician and their tickets on component mount
+
   useEffect(() => {
     fetchTechnicianAndTickets();
   }, []);
@@ -37,33 +39,20 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
     setSelectedTicket(null);
 
     try {
-      // ✅ Get all technicians instead of /users/{id}
-      const technicians = await userService.getTechnicians();
-
-      // ✅ Pick technician with ID 2
-      const technicianData = technicians.find(t => t.id === 2);
-
-      if (!technicianData) {
-        throw new Error("Technician not found");
+      // Get the logged-in technician
+      const technicianData = await fetchCurrentUser();
+      if (!technicianData || technicianData.role !== 'TECHNICIAN') {
+        throw new Error("Logged-in user is not a technician");
       }
-
       setTechnician(technicianData);
 
-      // ✅ Fetch tickets
+      // Fetch all tickets
       const allTickets = await ticketService.getAllTickets();
-
-      console.log("ALL TICKETS:", allTickets); // DEBUG
-      console.log("TECH ID:", technicianData.id); // DEBUG
-
-      // ✅ SAFE FILTER (handles number/string issues)
+      // Only tickets assigned to this technician
       const assignedTickets = allTickets.filter(
         ticket => Number(ticket.assignedToId) === Number(technicianData.id)
       );
-
-      console.log("ASSIGNED TICKETS:", assignedTickets); // DEBUG
-
       setTickets(assignedTickets);
-
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch technician or tickets");
     } finally {

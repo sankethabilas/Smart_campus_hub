@@ -1,22 +1,47 @@
-import { Building2, Moon, Sun, ShieldAlert } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Building2, Moon, Sun, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-interface NavbarProps {
-  isAdminMode: boolean;
-  onToggleAdmin: () => void;
-}
 
-export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
+
+export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token;
+
+  let userRole = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      // @ts-ignore
+      userRole = decoded.role;
+    } catch {}
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
 
     // Merged links: Using 'page' for the state and 'path' for the router
+    // Show dashboard link based on role
     const navLinks = [
-        { name: 'Home', page: 'home', path: '/' },
-        { name: 'Facilities', page: 'resources', path: '/resources' },
-        { name: 'Bookings', page: 'bookings', path: '/bookings' },
-        { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
-        { name: 'Dashboard', page: 'dashboard', path: '/dashboard' },
+      { name: 'Home', page: 'home', path: '/' },
+      { name: 'Facilities', page: 'resources', path: '/resources' },
+      { name: 'Bookings', page: 'bookings', path: '/bookings' },
+      { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
     ];
+    if (isLoggedIn && userRole) {
+      if (userRole === 'ADMIN') {
+        navLinks.unshift({ name: 'Admin Dashboard', page: 'admin-dashboard', path: '/admin-dashboard' });
+      } else if (userRole === 'TECHNICIAN') {
+        navLinks.unshift({ name: 'Technician Dashboard', page: 'technician-dashboard', path: '/technician-dashboard' });
+      } else {
+        navLinks.unshift({ name: 'User Dashboard', page: 'dashboard', path: '/dashboard' });
+      }
+    }
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
@@ -61,18 +86,6 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
           {/* Action Buttons */}
           <div className="flex items-center gap-4">
             <button
-              onClick={onToggleAdmin}
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
-                isAdminMode
-                  ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800'
-                  : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
-              }`}
-              title="Toggle Admin Capabilities"
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              {isAdminMode ? 'Admin On' : 'Admin Off'}
-            </button>
-            <button
               onClick={() => {
                 document.documentElement.classList.toggle('dark');
               }}
@@ -82,18 +95,31 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
               <Moon className="w-5 h-5 block dark:hidden" />
               <Sun className="w-5 h-5 hidden dark:block" />
             </button>
-            <Link 
-              to="/login"
-              className="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 transition-colors"
-            >
-              Login
-            </Link>
-            <Link 
-              to="/signup"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5"
-            >
-              Sign Up
-            </Link>
+            
+            {!isLoggedIn ? (
+              <>
+                <Link 
+                  to="/login"
+                  className="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5"
+                >
+                  Sign Up
+                </Link>
+              </>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 dark:border-rose-800/50 dark:text-rose-400"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>
