@@ -15,6 +15,7 @@ import java.io.IOException;
 @Component
 @AllArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
     private final AuthService authService;
 
     @Override
@@ -26,8 +27,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         System.out.println("Success handler triggered");
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String token = authService.handleGoogleLogin(oAuth2User);
-        String targetUrl = "http://localhost:5173/oauth-success?token=" + token;
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
 //        response.sendRedirect("http://localhost:3000/oauth-success?token=" + token);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"token\": \"" + token + "\"}");
     }
 }
