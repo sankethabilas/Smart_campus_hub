@@ -26,8 +26,6 @@ export interface AssetFilters {
   available?: boolean;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-
 export const assetService = {
   async fetchAllAssets(): Promise<Asset[]> {
     const response = await axiosInstance.get<ApiResponse<Asset[]> | Asset[]>('/assets');

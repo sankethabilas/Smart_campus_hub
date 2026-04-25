@@ -4,6 +4,7 @@ import com.project.smart_campus_operationhub.dtos.TicketAssignDTO;
 import com.project.smart_campus_operationhub.dtos.TicketRequestDTO;
 import com.project.smart_campus_operationhub.dtos.TicketResponseDTO;
 import com.project.smart_campus_operationhub.dtos.TicketStatusUpdateDTO;
+import com.project.smart_campus_operationhub.dtos.TicketUpdateDTO;
 import com.project.smart_campus_operationhub.entities.Asset;
 import com.project.smart_campus_operationhub.entities.Location;
 import com.project.smart_campus_operationhub.entities.Ticket;
@@ -192,6 +193,64 @@ public class TicketService {
 
         Ticket updatedTicket = ticketRepository.save(ticket);
         return convertToDTO(updatedTicket);
+    }
+
+    // UPDATE TICKET (General update of ticket details)
+    public TicketResponseDTO updateTicket(Integer ticketId, TicketUpdateDTO request) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        // Only allow updates on OPEN tickets
+        if (!"OPEN".equals(ticket.getStatus())) {
+            throw new RuntimeException("Can only update OPEN tickets");
+        }
+
+        // Update fields if provided
+        if (request.getTitle() != null && !request.getTitle().isEmpty()) {
+            ticket.setTitle(request.getTitle());
+        }
+
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            ticket.setDescription(request.getDescription());
+        }
+
+        if (request.getContact() != null && !request.getContact().isEmpty()) {
+            ticket.setContact(request.getContact());
+        }
+
+        if (request.getPriority() != null && !request.getPriority().isEmpty()) {
+            ticket.setPriority(request.getPriority());
+        }
+
+        if (request.getAssetId() != null) {
+            Asset asset = new Asset();
+            asset.setId(request.getAssetId());
+            ticket.setAsset(asset);
+        }
+
+        if (request.getLocationId() != null) {
+            Location location = new Location();
+            location.setId(request.getLocationId());
+            ticket.setLocation(location);
+        }
+
+        ticket.setUpdatedAt(Instant.now());
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        return convertToDTO(updatedTicket);
+    }
+
+    // DELETE TICKET
+    public void deleteTicket(Integer ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        // Only allow deletion of OPEN or REJECTED tickets
+        if (!"OPEN".equals(ticket.getStatus()) && !"REJECTED".equals(ticket.getStatus())) {
+            throw new RuntimeException("Can only delete OPEN or REJECTED tickets");
+        }
+
+        ticketRepository.delete(ticket);
     }
 
     // Validate status transitions

@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Lock, Mail, Phone, User, Briefcase } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -15,7 +15,7 @@ interface RegisterFormData {
     confirmPassword: string;
 }
 
-export default function AdminRegister({ onBack }: RegisterProps) {
+export default function AdminRegister(_: RegisterProps) {
     const [formData, setFormData] = useState<RegisterFormData>({
         name: '',
         role: 'TECHNICIAN', // Default role

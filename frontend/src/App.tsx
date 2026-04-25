@@ -20,23 +20,12 @@ function App() {
   const navigate = useNavigate();
   
   // State
-  const [isBackendConnected, setIsBackendConnected] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home');
+  const [, setCurrentPage] = useState('home');
   const [isAdminModeState, setIsAdminModeState] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   
   // URL-based admin detection (Cleaner than manual state for routing)
   const isAdminModeComputed = location.pathname.startsWith('/admin') || isAdminModeState || isAdminMode;
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
-
-  // Verify backend connection
-  // useEffect(() => {
-  //   fetch(`${BACKEND_URL}/api/test`)
-  //     .then((res) => {
-  //       if (res.ok) setIsBackendConnected(true);
-  //     })
-  //     .catch(() => setIsBackendConnected(false));
-  // }, [BACKEND_URL]);
 
   // Sync currentPage with route changes for UI highlights
   useEffect(() => {
@@ -69,8 +58,6 @@ function App() {
       */}
       {!isAdminModeComputed && (
         <Navbar 
-          setCurrentPage={handleSetCurrentPage} 
-          currentPage={currentPage} 
           isAdminMode={isAdminModeComputed}
           onToggleAdmin={() => setIsAdminModeState(!isAdminModeState)}
         />
@@ -87,7 +74,8 @@ function App() {
             </>
           } />
 
-          <Route path="/login" element={<Login setIsAdminMode={setIsAdminMode} />} />
+          <Route path="/login" element={<Login setIsAdminMode={setIsAdminMode} />} />
+
           <Route path="/signup" element={<Register />} />
           <Route path="/oauth-success" element={<OAuthSuccess />} />
 
@@ -106,7 +94,7 @@ function App() {
         </Routes>
       </main>
 
-      {!isAdminModeComputed && <Footer isConnected={isBackendConnected} />}
+      {!isAdminModeComputed && <Footer />}
     </div>
   );
 }

@@ -21,7 +21,7 @@ interface JwtPayload {
     exp: number
 }
 
-export default function Login({ onBack, setIsAdminMode }: LoginProps) {
+export default function Login({ setIsAdminMode }: LoginProps) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',

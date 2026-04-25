@@ -14,7 +14,7 @@ interface RegisterFormData {
 	confirmPassword: string;
 }
 
-export default function Register({ onBack }: RegisterProps) {
+export default function Register(_: RegisterProps) {
 	const [formData, setFormData] = useState<RegisterFormData>({
 		name: '',
 		email: '',

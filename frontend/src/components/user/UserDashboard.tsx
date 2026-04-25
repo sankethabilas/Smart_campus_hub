@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { User, Mail, Phone, Fingerprint, Loader2, Edit2, Check, X } from 'lucide-react';
 
 export default function UserDashboard() {

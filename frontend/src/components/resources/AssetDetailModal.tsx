@@ -7,7 +7,7 @@ interface AssetDetailModalProps {
   onClose: () => void;
 }
 
-const formatDate = (dt: string) => {
+const formatDate = (dt: string | undefined) => {
   if (!dt) return 'N/A';
   return new Date(dt).toLocaleString('en-US', {
     dateStyle: 'medium',
