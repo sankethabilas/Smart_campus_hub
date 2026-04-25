@@ -12,7 +12,8 @@ import Register from './components/layout/Register';
 import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 import TechnicianDashboard from './components/ticket/TechnicianDashboard';
-import { ResourcesPage } from './components/resources/ResourcesPage';
+import UserDashboard from './components/user/UserDashboard';
+import OAuthSuccess from './components/OAuthSuccess';
 
 function App() {
   const location = useLocation();
@@ -22,19 +23,20 @@ function App() {
   const [isBackendConnected, setIsBackendConnected] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const [isAdminModeState, setIsAdminModeState] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
   
   // URL-based admin detection (Cleaner than manual state for routing)
-  const isAdminMode = location.pathname.startsWith('/admin') || isAdminModeState;
+  const isAdminModeComputed = location.pathname.startsWith('/admin') || isAdminModeState || isAdminMode;
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
 
   // Verify backend connection
-  useEffect(() => {
-    fetch(`${BACKEND_URL}/api/test`)
-      .then((res) => {
-        if (res.ok) setIsBackendConnected(true);
-      })
-      .catch(() => setIsBackendConnected(false));
-  }, [BACKEND_URL]);
+  // useEffect(() => {
+  //   fetch(`${BACKEND_URL}/api/test`)
+  //     .then((res) => {
+  //       if (res.ok) setIsBackendConnected(true);
+  //     })
+  //     .catch(() => setIsBackendConnected(false));
+  // }, [BACKEND_URL]);
 
   // Sync currentPage with route changes for UI highlights
   useEffect(() => {
@@ -65,11 +67,11 @@ function App() {
       {/* Only show standard Navbar if NOT in admin mode. 
           AdminLayout usually provides its own sidebar/nav.
       */}
-      {!isAdminMode && (
+      {!isAdminModeComputed && (
         <Navbar 
           setCurrentPage={handleSetCurrentPage} 
           currentPage={currentPage} 
-          isAdminMode={isAdminMode}
+          isAdminMode={isAdminModeComputed}
           onToggleAdmin={() => setIsAdminModeState(!isAdminModeState)}
         />
       )}
@@ -85,25 +87,26 @@ function App() {
             </>
           } />
 
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setIsAdminMode={setIsAdminMode} />} />
           <Route path="/signup" element={<Register />} />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
 
           {/* Feature Routes */}
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/bookings" element={<MyBookingsPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/tickets" element={<CreateTicket setCurrentPage={handleSetCurrentPage} />} />
           <Route path="/technician" element={<TechnicianDashboard setCurrentPage={handleSetCurrentPage} />} />
 
           {/* Admin Routes (Nested) */}
-          <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminMode} />} />
+          <Route path="/admin/*" element={<AdminLayout isAdminMode={isAdminModeComputed} />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
-      {!isAdminMode && <Footer isConnected={isBackendConnected} />}
+      {!isAdminModeComputed && <Footer isConnected={isBackendConnected} />}
     </div>
   );
 }
