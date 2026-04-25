@@ -21,11 +21,9 @@ function App() {
   
   // State
   const [, setCurrentPage] = useState('home');
-  const [isAdminModeState, setIsAdminModeState] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
-  
   // URL-based admin detection (Cleaner than manual state for routing)
-  const isAdminModeComputed = location.pathname.startsWith('/admin') || isAdminModeState || isAdminMode;
+  const isAdminModeComputed = location.pathname.startsWith('/admin') || isAdminMode;
 
   // Sync currentPage with route changes for UI highlights
   useEffect(() => {
@@ -57,10 +55,7 @@ function App() {
           AdminLayout usually provides its own sidebar/nav.
       */}
       {!isAdminModeComputed && (
-        <Navbar 
-          isAdminMode={isAdminModeComputed}
-          onToggleAdmin={() => setIsAdminModeState(!isAdminModeState)}
-        />
+        <Navbar />
       )}
 
       <main className="grow">

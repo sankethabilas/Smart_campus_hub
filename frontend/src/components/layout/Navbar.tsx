@@ -25,6 +25,7 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
         { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
     ];
 
+
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

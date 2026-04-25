@@ -111,7 +111,16 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
       }
 
       // Mark as RESOLVED with resolution notes (Technician job)
-      if (updateStatus === "RESOLVED" && resolutionNotes) {
+      if (updateStatus === "RESOLVED") {
+        if (!resolutionNotes) {
+            throw new Error("Resolution notes are required to resolve a ticket");
+        }
+        
+        // If ticket is OPEN, we must transition to IN_PROGRESS first before resolving
+        if (selectedTicket.status === "OPEN") {
+            await ticketService.updateTicketStatus(selectedTicket.id, "IN_PROGRESS");
+        }
+
         await ticketService.resolveTicket(
           selectedTicket.id,
           resolutionNotes
