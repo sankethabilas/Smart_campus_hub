@@ -49,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll() // From main branch
                         .requestMatchers(HttpMethod.GET, "/api/assets/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/locations/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/my").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/*/cancel").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/bookings/*/approve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/bookings/*/reject").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/bookings").hasRole("ADMIN")
