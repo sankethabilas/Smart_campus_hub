@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
 import userService from "../../services/userService";
+import attachmentService from "../../services/attachmentService";
 import type { TicketResponseDTO } from "../../services/ticketService";
+import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
 import type { UserDto } from "../../services/userService";
 
 interface TechnicianDashboardProps {
@@ -16,6 +18,8 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [selectedTicket, setSelectedTicket] = useState<TicketResponseDTO | null>(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterPriority, setFilterPriority] = useState("ALL");
+  const [attachments, setAttachments] = useState<TicketAttachmentResponseDTO[]>([]);
+  const [loadingAttachments, setLoadingAttachments] = useState(false);
 
   // ✅ TECHNICIAN UPDATE FORM STATES
   const [updateStatus, setUpdateStatus] = useState("");
@@ -68,11 +72,23 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   };
 
   // ✅ TECHNICIAN: Handle ticket selection with form reset
-  const handleSelectTicket = (ticket: TicketResponseDTO) => {
+  const handleSelectTicket = async (ticket: TicketResponseDTO) => {
     setSelectedTicket(ticket);
     setUpdateStatus(ticket.status);
     setResolutionNotes(ticket.resolutionNotes || "");
     setSuccessMessage(null);
+    
+    // Fetch attachments for selected ticket
+    setLoadingAttachments(true);
+    try {
+      const ticketAttachments = await attachmentService.getAttachments(ticket.id);
+      setAttachments(ticketAttachments);
+    } catch (err) {
+      console.error("Failed to fetch attachments:", err);
+      setAttachments([]);
+    } finally {
+      setLoadingAttachments(false);
+    }
   };
 
   // ✅ TECHNICIAN: Update ticket status and resolution notes
@@ -346,6 +362,29 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* Attachments Section */}
+                    {!loadingAttachments && attachments.length > 0 && (
+                      <div className="mb-6 pb-4 border-b border-gray-200">
+                        <p className="text-xs font-semibold text-gray-500 uppercase mb-3">📎 Attachments ({attachments.length})</p>
+                        <div className="space-y-2">
+                          {attachments.map((attachment) => (
+                            <div key={attachment.id} className="bg-gray-50 p-3 rounded border border-gray-200">
+                              <p className="text-xs font-medium text-gray-700">{attachment.fileName}</p>
+                              <p className="text-xs text-gray-500">{new Date(attachment.uploadedAt).toLocaleDateString()}</p>
+                              {attachment.filePath && (
+                                <img
+                                  src={attachment.filePath}
+                                  alt={attachment.fileName}
+                                  className="mt-2 max-w-full h-auto rounded border border-gray-300 cursor-pointer hover:opacity-90"
+                                  onClick={() => window.open(attachment.filePath, "_blank")}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     <form onSubmit={handleUpdateTicket} className="space-y-4">
                       <div>

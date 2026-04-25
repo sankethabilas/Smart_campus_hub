@@ -782,6 +782,12 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
             📊 Technician Dashboard
           </button>
           <button
+            onClick={() => setCurrentPage("ticket-admin")}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            ⚙️ Admin Dashboard
+          </button>
+          <button
             onClick={() => setCurrentPage("home")}
             className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
           >
