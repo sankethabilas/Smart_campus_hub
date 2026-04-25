@@ -4,6 +4,10 @@ import ticketService from "../../services/ticketService";
 import type { TicketResponseDTO, TicketUpdateDTO } from "../../services/ticketService";
 import attachmentService from "../../services/attachmentService";
 import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
+import ticketCommentService from "../../services/ticketCommentService";
+import type { TicketCommentResponseDTO } from "../../services/ticketCommentService";
+import { assetService } from "../../services/assetService";
+import type { Asset } from "../../services/assetService";
 
 interface CreateTicketProps {
   setCurrentPage: (page: string) => void;
@@ -17,6 +21,7 @@ interface TicketFormData {
   reportedById: number;
   locationId?: number;
   assetId?: number;
+  comment?: string;
 }
 
 interface EditingTicket {
@@ -35,17 +40,26 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
     assetId: undefined,
   });
 
-  // On mount, fetch current user and set reportedById
+  const [locations, setLocations] = useState<{ id: number; name: string }[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+
+  // On mount, fetch current user, locations, and assets
   useEffect(() => {
-    async function setUserId() {
+    async function initData() {
       try {
         const user = await fetchCurrentUser();
         setFormData(prev => ({ ...prev, reportedById: user.id }));
+        
+        const locs = await assetService.fetchLocations();
+        setLocations(locs);
+        
+        const asts = await assetService.fetchAllAssets();
+        setAssets(asts);
       } catch (err) {
-        // Optionally handle error
+        console.error("Failed to load initial data", err);
       }
     }
-    setUserId();
+    initData();
     // eslint-disable-next-line
   }, []);
 
@@ -62,6 +76,10 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
   const [_allTickets, setAllTickets] = useState<TicketResponseDTO[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(false);
   const [ticketAttachments, setTicketAttachments] = useState<{ [key: number]: TicketAttachmentResponseDTO[] }>({});
+  const [ticketComments, setTicketComments] = useState<{ [key: number]: TicketCommentResponseDTO[] }>({});
+  const [newCommentText, setNewCommentText] = useState<{ [key: number]: string }>({});
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editCommentText, setEditCommentText] = useState<string>("");
   const [editingTicket, setEditingTicket] = useState<EditingTicket | null>(null);
   const [editErrors, setEditErrors] = useState<{ [key: number]: string | null }>({});
   const [expandedTickets, setExpandedTickets] = useState<Set<number>>(new Set());
@@ -85,7 +103,7 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
       );
       setUserTickets(userTicketsData);
       
-      // Fetch attachments for each ticket
+      // Fetch attachments and comments for each ticket
       for (const ticket of userTicketsData) {
         try {
           const attachments = await attachmentService.getAttachments(ticket.id);
@@ -93,8 +111,14 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
             ...prev,
             [ticket.id]: attachments,
           }));
+
+          const comments = await ticketCommentService.getTicketComments(ticket.id);
+          setTicketComments((prev) => ({
+            ...prev,
+            [ticket.id]: comments,
+          }));
         } catch (err) {
-          console.error(`Failed to fetch attachments for ticket ${ticket.id}:`, err);
+          console.error(`Failed to fetch extra data for ticket ${ticket.id}:`, err);
         }
       }
     } catch (err) {
@@ -144,14 +168,39 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!/^0\d{9}$/.test(formData.contact)) {
+      setError("Contact number must be exactly 10 digits and start with 0.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (formData.title.length < 5 || !/^[A-Za-z\s]+$/.test(formData.title)) {
+      setError("Title must contain at least 5 letters and no numbers or symbols.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      const newTicket = await ticketService.createTicket(formData);
+      const { comment, ...ticketPayload } = formData;
+      const newTicket = await ticketService.createTicket(ticketPayload);
       setCreatedTicket(newTicket);
       setSubmitted(true);
+
+      if (comment && comment.trim()) {
+        try {
+          await ticketCommentService.createComment(newTicket.id, {
+            commentedById: formData.reportedById,
+            comment: comment.trim()
+          });
+        } catch (commentErr) {
+          console.error("Failed to add initial comment", commentErr);
+        }
+      }
 
       if (selectedFiles.length > 0) {
         try {
@@ -179,6 +228,7 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
           reportedById: formData.reportedById,
           locationId: undefined,
           assetId: undefined,
+          comment: "",
         });
         setSelectedFiles([]);
         setSubmitted(false);
@@ -214,6 +264,22 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
 
   const handleUpdateTicket = async (ticketId: number) => {
     if (!editingTicket || editingTicket.id !== ticketId) return;
+
+    if (editingTicket.data.title && (editingTicket.data.title.length < 5 || !/^[A-Za-z\s]+$/.test(editingTicket.data.title))) {
+      setEditErrors((prev) => ({
+        ...prev,
+        [ticketId]: "Title must contain at least 5 letters and no numbers or symbols.",
+      }));
+      return;
+    }
+
+    if (editingTicket.data.contact && !/^0\d{9}$/.test(editingTicket.data.contact)) {
+      setEditErrors((prev) => ({
+        ...prev,
+        [ticketId]: "Contact number must be exactly 10 digits and start with 0.",
+      }));
+      return;
+    }
 
     try {
       const updatedTicket = await ticketService.updateTicket(ticketId, editingTicket.data);
@@ -270,6 +336,63 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
         ...prev,
         [ticketId]: errorMsg,
       }));
+    }
+  };
+
+  const handleCreateComment = async (ticketId: number) => {
+    const text = newCommentText[ticketId];
+    if (!text || !text.trim()) return;
+
+    try {
+      const comment = await ticketCommentService.createComment(ticketId, {
+        commentedById: formData.reportedById,
+        comment: text.trim()
+      });
+      setTicketComments((prev) => ({
+        ...prev,
+        [ticketId]: [...(prev[ticketId] || []), comment]
+      }));
+      setNewCommentText((prev) => ({ ...prev, [ticketId]: "" }));
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+    }
+  };
+
+  const handleEditComment = (commentId: number, currentText: string) => {
+    setEditingCommentId(commentId);
+    setEditCommentText(currentText);
+  };
+
+  const handleSaveEditComment = async (ticketId: number, commentId: number) => {
+    if (!editCommentText.trim()) return;
+    
+    try {
+      const updated = await ticketCommentService.updateComment(ticketId, commentId, {
+        commentedById: formData.reportedById,
+        comment: editCommentText.trim()
+      }, formData.reportedById);
+      
+      setTicketComments((prev) => ({
+        ...prev,
+        [ticketId]: prev[ticketId].map(c => c.id === commentId ? updated : c)
+      }));
+      setEditingCommentId(null);
+      setEditCommentText("");
+    } catch (err) {
+      console.error("Failed to update comment:", err);
+    }
+  };
+
+  const handleDeleteComment = async (ticketId: number, commentId: number) => {
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      await ticketCommentService.deleteComment(ticketId, commentId, formData.reportedById);
+      setTicketComments((prev) => ({
+        ...prev,
+        [ticketId]: prev[ticketId].filter(c => c.id !== commentId)
+      }));
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
     }
   };
 
@@ -406,33 +529,43 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="locationId" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Location ID (optional)
+                    Location (optional)
                   </label>
-                  <input
-                    type="number"
+                  <select
                     id="locationId"
                     name="locationId"
                     value={formData.locationId || ""}
                     onChange={handleChange}
-                    placeholder="Location ID"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  >
+                    <option value="">Select a location</option>
+                    {locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label htmlFor="assetId" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Asset ID *
+                    Asset *
                   </label>
-                  <input
-                    type="number"
+                  <select
                     id="assetId"
                     name="assetId"
                     value={formData.assetId || ""}
                     onChange={handleChange}
                     required
-                    placeholder="Asset ID"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  >
+                    <option value="">Select an asset</option>
+                    {assets.map((asset) => (
+                      <option key={asset.id} value={asset.id}>
+                        {asset.name} ({asset.type})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -447,9 +580,24 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
                   value={formData.contact}
                   onChange={handleChange}
                   required
-                  placeholder="Email or phone number"
+                  placeholder="e.g. 0712345678"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="comment" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Initial Comment (optional)
+                </label>
+                <textarea
+                  id="comment"
+                  name="comment"
+                  value={formData.comment || ""}
+                  onChange={handleChange}
+                  rows={2}
+                  placeholder="Any additional comments..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                ></textarea>
               </div>
 
               <div>
@@ -665,6 +813,65 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
                           </div>
                         </div>
                       )}
+
+                      {/* Comments Section */}
+                      <div className="pt-4 border-t">
+                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">💬 Comments</p>
+                        <div className="space-y-3 mb-4">
+                          {(ticketComments[ticket.id] || []).map((comment) => (
+                            <div key={comment.id} className="bg-white p-3 rounded shadow-sm border border-gray-200">
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="font-semibold text-sm text-gray-800">{comment.commentedByName}</span>
+                                <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
+                              </div>
+                              
+                              {editingCommentId === comment.id ? (
+                                <div className="mt-2">
+                                  <textarea
+                                    value={editCommentText}
+                                    onChange={(e) => setEditCommentText(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm mb-2"
+                                    rows={2}
+                                  />
+                                  <div className="flex gap-2">
+                                    <button onClick={() => handleSaveEditComment(ticket.id, comment.id)} className="px-3 py-1 bg-green-600 text-white text-xs rounded">Save</button>
+                                    <button onClick={() => setEditingCommentId(null)} className="px-3 py-1 bg-gray-400 text-white text-xs rounded">Cancel</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
+                              )}
+                              
+                              {comment.commentedById === formData.reportedById && editingCommentId !== comment.id && (
+                                <div className="flex gap-3 mt-2">
+                                  <button onClick={() => handleEditComment(comment.id, comment.comment)} className="text-xs text-blue-600 hover:underline">Edit</button>
+                                  <button onClick={() => handleDeleteComment(ticket.id, comment.id)} className="text-xs text-red-600 hover:underline">Delete</button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          {(ticketComments[ticket.id] || []).length === 0 && (
+                            <p className="text-xs text-gray-500 italic">No comments yet.</p>
+                          )}
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="Add a comment..."
+                            value={newCommentText[ticket.id] || ""}
+                            onChange={(e) => setNewCommentText(prev => ({ ...prev, [ticket.id]: e.target.value }))}
+                            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                          />
+                          <button 
+                            onClick={() => handleCreateComment(ticket.id)}
+                            disabled={!newCommentText[ticket.id]?.trim()}
+                            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded disabled:bg-blue-300 transition"
+                          >
+                            Post
+                          </button>
+                        </div>
+                      </div>
 
                       {/* Edit Section */}
                       {editingTicket?.id === ticket.id ? (
