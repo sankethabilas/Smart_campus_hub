@@ -1,3 +1,5 @@
+import axiosInstance from './axiosConfig';
+
 export interface Asset {
   id: number;
   name: string;
@@ -5,8 +7,8 @@ export interface Asset {
   status: 'ACTIVE' | 'OUT_OF_SERVICE';
   capacity: number;
   locationId: number;
-  startDatetime: string;
-  endDatetime: string;
+  startDatetime?: string;
+  endDatetime?: string;
 }
 
 export interface ApiResponse<T> {
@@ -24,16 +26,13 @@ export interface AssetFilters {
   available?: boolean;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8083/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 export const assetService = {
   async fetchAllAssets(): Promise<Asset[]> {
-    const response = await fetch(`${API_BASE_URL}/assets`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch assets');
-    }
-    const result = await response.json();
-    return result.data || result; // Fallback in case ApiResponse wrapper isn't strictly used
+    const response = await axiosInstance.get<ApiResponse<Asset[]> | Asset[]>('/assets');
+    const data = response.data;
+    return (data as ApiResponse<Asset[]>).data || data as Asset[];
   },
 
   async searchAssets(filters: AssetFilters): Promise<Asset[]> {
@@ -41,58 +40,45 @@ export const assetService = {
     if (filters.type) params.append('type', filters.type);
     if (filters.status) params.append('status', filters.status);
     if (filters.capacity !== undefined) params.append('capacity', filters.capacity.toString());
-    if (filters.locationId !== undefined) params.append('locationId', filters.locationId.toString());
+    if (filters.locationId !== undefined) params.append('location_id', filters.locationId.toString());
     if (filters.available !== undefined) params.append('available', filters.available.toString());
 
-    const response = await fetch(`${API_BASE_URL}/assets/search?${params.toString()}`);
-    if (!response.ok) {
-      throw new Error('Failed to search assets');
-    }
-    const result = await response.json();
-    return result.data || result;
+    const response = await axiosInstance.get<ApiResponse<Asset[]> | Asset[]>(`/assets/search?${params.toString()}`);
+    const data = response.data;
+    return (data as ApiResponse<Asset[]>).data || data as Asset[];
   },
 
   async fetchLocations(): Promise<{ id: number; name: string }[]> {
-    const response = await fetch(`${API_BASE_URL}/locations`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch locations');
-    }
-    const result = await response.json();
-    return result.data || result;
+    const response = await axiosInstance.get<ApiResponse<{ id: number; name: string }[]> | { id: number; name: string }[]>('/locations');
+    const data = response.data;
+    return (data as ApiResponse<{ id: number; name: string }[]>).data || data as { id: number; name: string }[];
   },
 
   async createAsset(asset: Omit<Asset, 'id'>): Promise<Asset> {
-    const response = await fetch(`${API_BASE_URL}/assets`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(asset),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create asset');
+    try {
+      const response = await axiosInstance.post<ApiResponse<Asset> | Asset>('/assets', asset);
+      const data = response.data;
+      return (data as ApiResponse<Asset>).data || data as Asset;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to create asset');
     }
-    const result = await response.json();
-    return result.data || result;
   },
 
   async updateAsset(id: number, asset: Partial<Asset>): Promise<Asset> {
-    const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(asset),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update asset');
+    try {
+      const response = await axiosInstance.put<ApiResponse<Asset> | Asset>(`/assets/${id}`, asset);
+      const data = response.data;
+      return (data as ApiResponse<Asset>).data || data as Asset;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to update asset');
     }
-    const result = await response.json();
-    return result.data || result;
   },
 
   async deleteAsset(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete asset');
+    try {
+      await axiosInstance.delete(`/assets/${id}`);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to delete asset');
     }
   }
 };

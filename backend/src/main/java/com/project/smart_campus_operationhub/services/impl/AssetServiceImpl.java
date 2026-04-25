@@ -34,7 +34,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public List<AssetDto> getAllAssets() {
-        return assetRepository.findAll().stream()
+        return assetRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
@@ -92,7 +92,7 @@ public class AssetServiceImpl implements AssetService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return assetRepository.findAll(spec).stream()
+        return assetRepository.findAll(spec, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
