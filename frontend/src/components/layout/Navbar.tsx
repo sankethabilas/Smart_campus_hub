@@ -82,12 +82,18 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
               <Moon className="w-5 h-5 block dark:hidden" />
               <Sun className="w-5 h-5 hidden dark:block" />
             </button>
-            <button className="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 transition-colors">
+            <Link 
+              to="/login"
+              className="hidden sm:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 transition-colors"
+            >
               Login
-            </button>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5">
+            </Link>
+            <Link 
+              to="/signup"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm shadow-indigo-200 dark:shadow-none transition-all hover:shadow-md transform hover:-translate-y-0.5"
+            >
               Sign Up
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -95,7 +95,8 @@ export default function Register(_: RegisterProps) {
 		setError('');
 
 		try {
-			const response = await fetch('http://localhost:8080/users', {
+			const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
+			const response = await fetch(`${BACKEND_URL}/users`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -129,7 +130,8 @@ export default function Register(_: RegisterProps) {
 	};
 
 	const handleGoogleSignIn = () => {
-		window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+		const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
+		window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
 	};
 
 	return (

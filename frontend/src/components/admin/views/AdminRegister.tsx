@@ -94,7 +94,8 @@ export default function AdminRegister(_: RegisterProps) {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:8080/admin', {
+            const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
+            const response = await fetch(`${BACKEND_URL}/admin`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

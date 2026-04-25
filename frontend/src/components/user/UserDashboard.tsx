@@ -16,7 +16,8 @@ export default function UserDashboard() {
 
   const fetchUserData = () => {
     const token = localStorage.getItem('token');
-    fetch('http://localhost:8080/auth/me', {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
+    fetch(`${BACKEND_URL}/auth/me`, {
       headers: { 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json' 
@@ -36,7 +37,8 @@ export default function UserDashboard() {
     const token = localStorage.getItem('token');
     
     try {
-      const response = await fetch(`http://localhost:8080/users/${user.id}`, {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
+      const response = await fetch(`${BACKEND_URL}/users/${user.id}`, {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}`,
