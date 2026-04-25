@@ -11,6 +11,8 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 import TechnicianDashboard from './components/ticket/TechnicianDashboard';
 import { ResourcesPage } from './components/resources/ResourcesPage';
+import UserDashboard from './components/user/UserDashboard';
+import OAuthSuccess from './components/OAuthSuccess';
 
 function App() {
   const location = useLocation();
@@ -19,19 +21,18 @@ function App() {
   // State
   const [isBackendConnected, setIsBackendConnected] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
+  const [isAdminMode, setIsAdminMode] = useState(false);
   
-  // URL-based admin detection (Cleaner than manual state for routing)
-  const isAdminMode = location.pathname.startsWith('/admin');
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
+
 
   // Verify backend connection
-  useEffect(() => {
-    fetch(`${BACKEND_URL}/api/test`)
-      .then((res) => {
-        if (res.ok) setIsBackendConnected(true);
-      })
-      .catch(() => setIsBackendConnected(false));
-  }, [BACKEND_URL]);
+  // useEffect(() => {
+  //   fetch(`${BACKEND_URL}/api/test`)
+  //     .then((res) => {
+  //       if (res.ok) setIsBackendConnected(true);
+  //     })
+  //     .catch(() => setIsBackendConnected(false));
+  // }, [BACKEND_URL]);
 
   // Sync currentPage with route changes for UI highlights
   useEffect(() => {
@@ -80,12 +81,13 @@ function App() {
             </>
           } />
 
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setIsAdminMode={setIsAdminMode} />} />
           <Route path="/signup" element={<Register />} />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
 
           {/* Feature Routes */}
           <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/tickets" element={<CreateTicket setCurrentPage={handleSetCurrentPage} />} />
           <Route path="/technician" element={<TechnicianDashboard setCurrentPage={handleSetCurrentPage} />} />
 
