@@ -11,6 +11,8 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import CreateTicket from './components/ticket/CreateTicket';
 import TechnicianDashboard from './components/ticket/TechnicianDashboard';
 import { ResourcesPage } from './components/resources/ResourcesPage';
+import UserDashboard from './components/user/UserDashboard';
+import OAuthSuccess from './components/OAuthSuccess';
 
 function App() {
   const location = useLocation();
@@ -81,9 +83,11 @@ function App() {
 
           <Route path="/login" element={<Login setIsAdminMode={setIsAdminMode} />} />
           <Route path="/signup" element={<Register />} />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
 
           {/* Feature Routes */}
           <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/tickets" element={<CreateTicket setCurrentPage={handleSetCurrentPage} />} />
           <Route path="/technician" element={<TechnicianDashboard setCurrentPage={handleSetCurrentPage} />} />
 
