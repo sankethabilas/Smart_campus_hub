@@ -86,7 +86,7 @@ export default function Login({ setIsAdminMode }: LoginProps) {
                 navigate('/admin')
                 break;
             case 'TECHNICIAN':
-                navigate('/technician-dashboard');
+                navigate('/technician');
                 break;
             case 'USER':
             default:
