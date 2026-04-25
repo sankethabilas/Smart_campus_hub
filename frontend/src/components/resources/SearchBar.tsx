@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
@@ -24,7 +24,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ value, onChange, totalCoun
     };
   }, []);
 
-  const debouncedOnChange = useMemo(() => debounce((val: string) => onChange(val), 300), [debounce, onChange]);
+  const debouncedOnChange = useCallback(debounce((val: string) => onChange(val), 300), [onChange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);

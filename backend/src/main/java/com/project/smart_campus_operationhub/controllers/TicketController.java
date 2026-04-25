@@ -4,6 +4,7 @@ import com.project.smart_campus_operationhub.dtos.TicketAssignDTO;
 import com.project.smart_campus_operationhub.dtos.TicketRequestDTO;
 import com.project.smart_campus_operationhub.dtos.TicketResponseDTO;
 import com.project.smart_campus_operationhub.dtos.TicketStatusUpdateDTO;
+import com.project.smart_campus_operationhub.dtos.TicketUpdateDTO;
 import com.project.smart_campus_operationhub.services.TicketService;
 import org.springframework.web.bind.annotation.*;
 
@@ -93,5 +94,25 @@ public class TicketController {
             @RequestBody Map<String, String> request) {
         String rejectionReason = request.get("rejectionReason");
         return ticketService.rejectTicket(id, rejectionReason);
+    }
+
+    /**
+     * UPDATE TICKET
+     * PUT /api/tickets/{id}
+     */
+    @PutMapping("/{id}")
+    public TicketResponseDTO updateTicket(
+            @PathVariable Integer id,
+            @RequestBody TicketUpdateDTO request) {
+        return ticketService.updateTicket(id, request);
+    }
+
+    /**
+     * DELETE TICKET
+     * DELETE /api/tickets/{id}
+     */
+    @DeleteMapping("/{id}")
+    public void deleteTicket(@PathVariable Integer id) {
+        ticketService.deleteTicket(id);
     }
 }

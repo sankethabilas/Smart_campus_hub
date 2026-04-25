@@ -22,7 +22,7 @@ public class TicketAttachmentController {
     @PostMapping
     public TicketAttachmentResponseDTO uploadAttachment(
             @PathVariable Integer ticketId,
-            @RequestParam Long userId,
+            @RequestParam Integer userId,
             @RequestParam("file") MultipartFile file) throws IOException {
 
         return attachmentService.uploadAttachment(ticketId, userId, file);
@@ -33,5 +33,13 @@ public class TicketAttachmentController {
     public List<TicketAttachmentResponseDTO> getAttachments(
             @PathVariable Integer ticketId) {
         return attachmentService.getAttachmentsByTicket(ticketId);
+    }
+
+    // DELETE ATTACHMENT
+    @DeleteMapping("/{attachmentId}")
+    public void deleteAttachment(
+            @PathVariable Integer ticketId,
+            @PathVariable Integer attachmentId) {
+        attachmentService.deleteAttachment(attachmentId);
     }
 }

@@ -60,6 +60,22 @@ class AttachmentService {
       throw new Error('Failed to fetch attachments: Unknown error');
     }
   }
+
+  /**
+   * Delete an attachment from a ticket
+   */
+  async deleteAttachment(ticketId: number, attachmentId: number): Promise<void> {
+    try {
+      await axiosInstance.delete(
+        `/tickets/${ticketId}/attachments/${attachmentId}`
+      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to delete attachment: ${error.message}`);
+      }
+      throw new Error('Failed to delete attachment: Unknown error');
+    }
+  }
 }
 
 export default new AttachmentService();

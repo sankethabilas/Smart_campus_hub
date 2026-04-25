@@ -3,6 +3,7 @@ package com.project.smart_campus_operationhub.controllers;
 import com.project.smart_campus_operationhub.dtos.RegisterUserRequest;
 import com.project.smart_campus_operationhub.dtos.UpdateUserRequest;
 import com.project.smart_campus_operationhub.dtos.UserDto;
+import com.project.smart_campus_operationhub.entities.Role;
 import com.project.smart_campus_operationhub.mappers.UserMapper;
 import com.project.smart_campus_operationhub.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,6 +27,14 @@ public class UserController {
     @GetMapping
     public Iterable<UserDto> getAllUsers() {
         return userRepository.findAll()
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    @GetMapping("/role/technician")
+    public List<UserDto> getTechnicians() {
+        return userRepository.findByRole(Role.TECHNICIAN)
                 .stream()
                 .map(userMapper::toDto)
                 .toList();
