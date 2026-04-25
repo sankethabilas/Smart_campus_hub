@@ -42,6 +42,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/error").permitAll() // From main branch
+                        .requestMatchers(HttpMethod.GET, "/api/assets/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/locations/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/*/approve").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/*/reject").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/bookings").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN") // From rolemanagement branch
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e

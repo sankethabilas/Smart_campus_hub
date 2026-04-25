@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LayoutGrid, Search as SearchIcon, PackageOpen, RefreshCcw, Server } from 'lucide-react';
 import { assetService } from '../../services/assetService';
 import type { Asset, AssetFilters } from '../../services/assetService';
@@ -12,6 +13,7 @@ import { BookResourceModal } from '../bookings/BookResourceModal';
 const DEFAULT_FILTERS: AssetFilters = {};
 
 export const ResourcesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export const ResourcesPage: React.FC = () => {
       }
       setAssets(data);
     } catch (e) {
-      setError('Unable to connect to the backend. Make sure the server is running on port 8082.');
+      setError('Unable to connect to the backend. Make sure the server is running on port 8080.');
     } finally {
       setLoading(false);
     }
@@ -214,13 +216,13 @@ export const ResourcesPage: React.FC = () => {
         />
       )}
 
-      {/* Booking modal */}
       <BookResourceModal
         asset={bookingAsset}
         isOpen={!!bookingAsset}
         onClose={() => setBookingAsset(null)}
         onSuccess={() => {
           alert('Booking request submitted successfully!');
+          navigate('/bookings');
         }}
       />
     </div>

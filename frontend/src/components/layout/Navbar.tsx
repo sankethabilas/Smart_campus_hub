@@ -15,9 +15,9 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
     // Merged links: Using 'page' for the state and 'path' for the router
     const navLinks = [
         { name: 'Home', page: 'home', path: '/' },
-        { name: 'Facilities', page: 'facilities', path: '/facilities' },
+        { name: 'Facilities', page: 'resources', path: '/resources' },
         { name: 'Bookings', page: 'bookings', path: '/bookings' },
-        { name: 'Tickets', page: 'create-ticket', path: '/create-ticket' },
+        { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
         { name: 'Dashboard', page: 'dashboard', path: '/dashboard' },
     ];
 

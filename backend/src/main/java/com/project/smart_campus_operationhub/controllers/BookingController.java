@@ -20,8 +20,8 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<?> createBooking(@RequestBody BookingRequestDTO request) {
         try {
-            // Hardcode mock user ID for now as requested
-            request.setRequestedById(1L);
+            Long userId = (Long) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            request.setRequestedById(userId);
             return ResponseEntity.ok(bookingService.createBooking(request));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -30,8 +30,8 @@ public class BookingController {
 
     @GetMapping("/my")
     public ResponseEntity<List<BookingResponseDTO>> getMyBookings() {
-        // Hardcode mock user ID 1L
-        return ResponseEntity.ok(bookingService.getMyBookings(1L));
+        Long userId = (Long) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(bookingService.getMyBookings(userId));
     }
 
     @GetMapping
@@ -42,8 +42,8 @@ public class BookingController {
     @PutMapping("/{id}/approve")
     public ResponseEntity<?> approveBooking(@PathVariable Integer id) {
         try {
-            // Mock admin ID 1L
-            return ResponseEntity.ok(bookingService.approveBooking(id, 1L));
+            Long adminId = (Long) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok(bookingService.approveBooking(id, adminId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -52,8 +52,8 @@ public class BookingController {
     @PutMapping("/{id}/reject")
     public ResponseEntity<?> rejectBooking(@PathVariable Integer id, @RequestBody BookingActionDTO action) {
         try {
-            // Mock admin ID 1L
-            return ResponseEntity.ok(bookingService.rejectBooking(id, action.getReviewReason(), 1L));
+            Long adminId = (Long) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok(bookingService.rejectBooking(id, action.getReviewReason(), adminId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -62,8 +62,8 @@ public class BookingController {
     @PutMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable Integer id) {
         try {
-            // Mock user ID 1L
-            return ResponseEntity.ok(bookingService.cancelBooking(id, 1L));
+            Long userId = (Long) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok(bookingService.cancelBooking(id, userId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

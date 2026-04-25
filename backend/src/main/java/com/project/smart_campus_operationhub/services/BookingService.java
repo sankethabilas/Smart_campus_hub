@@ -122,6 +122,10 @@ public class BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
         
+        if (!booking.getRequestedBy().getId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to cancel this booking");
+        }
+
         booking.setStatus("CANCELLED");
         booking.setUpdatedAt(Instant.now());
 
