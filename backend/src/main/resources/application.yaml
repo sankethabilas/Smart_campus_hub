@@ -21,9 +21,15 @@ spring:
             scope:
               - email
               - profile
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
 logging:
   level:
     org.springframework.security: DEBUG
-#server:
-#  port: 8081
-
+server:
+  port: 8080
+file:
+  upload-dir: uploads

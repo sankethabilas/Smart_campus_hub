@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 // Define props to keep the incoming branch's state logic
 interface NavbarProps {
   setCurrentPage: (page: string) => void;
-  currentPage: string;
-  isAdminMode: boolean;
+  currentPage?: string;
+  isAdminMode?: boolean;
   onToggleAdmin: () => void;
 }
 
