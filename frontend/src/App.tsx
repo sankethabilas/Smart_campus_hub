@@ -27,7 +27,7 @@ function App() {
   
   // URL-based admin detection (Cleaner than manual state for routing)
   const isAdminModeComputed = location.pathname.startsWith('/admin') || isAdminModeState || isAdminMode;
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8083';
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
   // Verify backend connection
   // useEffect(() => {

@@ -30,6 +30,6 @@ logging:
   level:
     org.springframework.security: DEBUG
 server:
-  port: 8083
+  port: 8080
 file:
   upload-dir: uploads
