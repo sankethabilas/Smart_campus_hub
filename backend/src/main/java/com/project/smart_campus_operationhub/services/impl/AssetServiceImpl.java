@@ -27,6 +27,11 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public AssetDto createAsset(AssetDto assetDto) {
         validateDates(assetDto.getStartDatetime(), assetDto.getEndDatetime());
+        
+        if (assetDto.getLocationId() != null && assetRepository.existsByNameAndLocationId(assetDto.getName(), assetDto.getLocationId())) {
+            throw new IllegalArgumentException("An asset with the name '" + assetDto.getName() + "' already exists at this location.");
+        }
+        
         Asset asset = mapToEntity(assetDto, new Asset());
         Asset savedAsset = assetRepository.save(asset);
         return mapToDto(savedAsset);
@@ -52,6 +57,10 @@ public class AssetServiceImpl implements AssetService {
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id " + id));
         
         validateDates(assetDto.getStartDatetime(), assetDto.getEndDatetime());
+        
+        if (assetDto.getLocationId() != null && assetRepository.existsByNameAndLocationIdAndIdNot(assetDto.getName(), assetDto.getLocationId(), id)) {
+            throw new IllegalArgumentException("An asset with the name '" + assetDto.getName() + "' already exists at this location.");
+        }
         
         Asset updatedAsset = mapToEntity(assetDto, existingAsset);
         assetRepository.save(updatedAsset);

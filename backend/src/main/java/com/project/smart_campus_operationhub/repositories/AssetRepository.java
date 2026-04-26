@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AssetRepository extends JpaRepository<Asset, Integer>, JpaSpecificationExecutor<Asset> {
+    boolean existsByNameAndLocationId(String name, Integer locationId);
+    boolean existsByNameAndLocationIdAndIdNot(String name, Integer locationId, Integer id);
 }
