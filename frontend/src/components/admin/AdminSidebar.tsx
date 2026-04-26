@@ -1,14 +1,26 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Database, PlusCircle, CalendarDays, Wrench, Home, Ticket } from 'lucide-react';
+// 1. Added UserPlus icon
+import { 
+  LayoutDashboard, 
+  Database, 
+  PlusCircle, 
+  CalendarDays, 
+  Wrench, 
+  Home, 
+  Ticket, 
+  UserPlus 
+} from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();
 
   const navItems = [
     { name: 'Dashboard Overview', path: '/admin/overview', icon: LayoutDashboard },
+    // 2. Added Register/Add User option
+    { name: 'Add New User', path: '/admin/register', icon: UserPlus }, 
     { name: 'Facilities & Assets', path: '/admin/resources', icon: Database },
-    { name: 'Add New Resource', path: '/admin/resources?add=true', icon: PlusCircle }, // Handled in ManageResources
+    { name: 'Add New Resource', path: '/admin/resources?add=true', icon: PlusCircle },
     { name: 'Tickets', path: '/admin/tickets', icon: Ticket },
     { name: 'Bookings', path: '/admin/bookings', icon: CalendarDays },
     { name: 'Maintenance', path: '/admin/maintenance', icon: Wrench },
@@ -32,7 +44,8 @@ export const AdminSidebar: React.FC = () => {
       {/* Nav Links */}
       <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || (location.pathname === '/admin/resources' && item.name === 'Add New Resource' && location.search.includes('add=true'));
+          const isActive = location.pathname === item.path || 
+            (location.pathname === '/admin/resources' && item.name === 'Add New Resource' && location.search.includes('add=true'));
           
           return (
             <Link

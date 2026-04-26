@@ -86,38 +86,54 @@ export default function AdminRegister(_: RegisterProps) {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (!validateForm()) return;
+    if (!validateForm()) return;
 
-        setIsLoading(true);
-        setError('');
+    setIsLoading(true);
+    setError('');
 
-        try {
-            const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
-            const response = await fetch(`${BACKEND_URL}/admin`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: formData.name,
-                    role: formData.role,
-                    email: formData.email,
-                    phone: formData.phone,
-                    password: formData.password,
-                }),
-            });
+    // Retrieve the token of the currently logged-in Admin
+    const token = localStorage.getItem('token');
 
-            if (!response.ok) throw new Error('Registration failed');
+    try {
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8085';
+        const response = await fetch(`${BACKEND_URL}/admin`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                // ADD THE AUTHORIZATION HEADER
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({
+                name: formData.name,
+                role: formData.role,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password,
+            }),
+        });
 
-            const data = await response.json();
-            localStorage.setItem('token', data.token);
-            window.location.href = '/login';
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Registration failed');
-        } finally {
-            setIsLoading(false);
+        if (response.status === 403) {
+            throw new Error('Access Denied: Only Admins can create accounts.');
         }
-    };
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Registration failed');
+        }
+
+        alert("Account created successfully!");
+        // Optional: Redirect to a dashboard instead of login, 
+        // since the current user is already logged in as Admin
+        window.location.href = '/dashboard'; 
+        
+    } catch (err) {
+        setError(err instanceof Error ? err.message : 'Registration failed');
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4 py-12">

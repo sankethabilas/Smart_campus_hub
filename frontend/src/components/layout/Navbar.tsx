@@ -1,5 +1,6 @@
 import { Building2, Moon, Sun, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { NotificationDropdown } from '../resources/NotificationDropDown';
 
 interface NavbarProps {
   setCurrentPage: (page: string) => void;
@@ -82,6 +83,12 @@ export default function Navbar({ setCurrentPage, currentPage, isAdminMode, onTog
                             <Moon className="w-5 h-5 block dark:hidden" />
                             <Sun className="w-5 h-5 hidden dark:block" />
                         </button>
+
+                        {isLoggedIn && (
+                            <div className="flex items-center">
+                                <NotificationDropdown />
+                            </div>
+                        )}
                         
                         {!isLoggedIn ? (
                             <>
