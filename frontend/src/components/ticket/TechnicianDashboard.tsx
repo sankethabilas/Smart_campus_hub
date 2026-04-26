@@ -3,8 +3,10 @@ import ticketService from "../../services/ticketService";
 // import userService from "../../services/userService";
 import { fetchCurrentUser } from "../../services/authService";
 import attachmentService from "../../services/attachmentService";
+import ticketCommentService from "../../services/ticketCommentService";
 import type { TicketResponseDTO } from "../../services/ticketService";
 import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
+import type { TicketCommentResponseDTO } from "../../services/ticketCommentService";
 import type { UserDto } from "../../services/userService";
 
 interface TechnicianDashboardProps {
@@ -21,6 +23,8 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
   const [filterPriority, setFilterPriority] = useState("ALL");
   const [attachments, setAttachments] = useState<TicketAttachmentResponseDTO[]>([]);
   const [loadingAttachments, setLoadingAttachments] = useState(false);
+  const [comments, setComments] = useState<TicketCommentResponseDTO[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   // ✅ TECHNICIAN UPDATE FORM STATES
   const [updateStatus, setUpdateStatus] = useState("");
@@ -77,6 +81,18 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
       setAttachments([]);
     } finally {
       setLoadingAttachments(false);
+    }
+
+    // Fetch comments for selected ticket
+    setLoadingComments(true);
+    try {
+      const ticketComments = await ticketCommentService.getTicketComments(ticket.id);
+      setComments(ticketComments);
+    } catch (err) {
+      console.error("Failed to fetch comments:", err);
+      setComments([]);
+    } finally {
+      setLoadingComments(false);
     }
   };
 
@@ -371,6 +387,24 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
                                   onClick={() => window.open(attachment.filePath, "_blank")}
                                 />
                               )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Comments Section */}
+                    {!loadingComments && comments.length > 0 && (
+                      <div className="mb-6 pb-4 border-b border-gray-200">
+                        <p className="text-xs font-semibold text-gray-500 uppercase mb-3">💬 Comments ({comments.length})</p>
+                        <div className="space-y-3">
+                          {comments.map((comment) => (
+                            <div key={comment.id} className="bg-white p-3 rounded shadow-sm border border-gray-200">
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="font-semibold text-sm text-gray-800">{comment.commentedByName}</span>
+                                <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
+                              </div>
+                              <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
                             </div>
                           ))}
                         </div>

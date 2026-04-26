@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import ticketService from "../../services/ticketService";
 import userService from "../../services/userService";
 import attachmentService from "../../services/attachmentService";
+import ticketCommentService from "../../services/ticketCommentService";
 import type { TicketResponseDTO } from "../../services/ticketService";
 import type { TicketAttachmentResponseDTO } from "../../services/attachmentService";
+import type { TicketCommentResponseDTO } from "../../services/ticketCommentService";
 import type { UserDto } from "../../services/userService";
 
 const TicketAdminPage: React.FC = () => {
@@ -17,6 +19,8 @@ const TicketAdminPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [attachments, setAttachments] = useState<TicketAttachmentResponseDTO[]>([]);
   const [loadingAttachments, setLoadingAttachments] = useState(false);
+  const [comments, setComments] = useState<TicketCommentResponseDTO[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   // Form states for updating ticket
   const [updateStatus, setUpdateStatus] = useState("");
@@ -111,6 +115,18 @@ const TicketAdminPage: React.FC = () => {
       setAttachments([]);
     } finally {
       setLoadingAttachments(false);
+    }
+
+    // Fetch comments for selected ticket
+    setLoadingComments(true);
+    try {
+      const ticketComments = await ticketCommentService.getTicketComments(ticket.id);
+      setComments(ticketComments);
+    } catch (err) {
+      console.error("Failed to fetch comments:", err);
+      setComments([]);
+    } finally {
+      setLoadingComments(false);
     }
   };
 
@@ -451,6 +467,26 @@ const TicketAdminPage: React.FC = () => {
                                     onClick={() => window.open(attachment.filePath, "_blank")}
                                   />
                                 )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Comments Section */}
+                      {!loadingComments && comments.length > 0 && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-2 mt-4">
+                            💬 Comments ({comments.length})
+                          </label>
+                          <div className="space-y-3 max-h-60 overflow-y-auto">
+                            {comments.map((comment) => (
+                              <div key={comment.id} className="bg-white p-3 rounded shadow-sm border border-gray-200">
+                                <div className="flex justify-between items-start mb-1">
+                                  <span className="font-semibold text-sm text-gray-800">{comment.commentedByName}</span>
+                                  <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
+                                </div>
+                                <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
                               </div>
                             ))}
                           </div>
