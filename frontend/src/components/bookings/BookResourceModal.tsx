@@ -39,6 +39,10 @@ export const BookResourceModal: React.FC<BookResourceModalProps> = ({ asset, isO
       setError(`Headcount cannot exceed resource capacity of ${asset.capacity}.`);
       return;
     }
+    if (asset.status === 'OUT_OF_SERVICE') {
+      setError('Resource is currently out of service and cannot be booked.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -271,10 +275,10 @@ export const BookResourceModal: React.FC<BookResourceModalProps> = ({ asset, isO
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || asset.status === 'OUT_OF_SERVICE'}
                 className="px-5 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-sm shadow-indigo-200 dark:shadow-none disabled:opacity-50"
               >
-                {loading ? 'Submitting…' : 'Submit Booking'}
+                {loading ? 'Submitting…' : asset.status === 'OUT_OF_SERVICE' ? 'Unavailable' : 'Submit Booking'}
               </button>
             </div>
           </form>
