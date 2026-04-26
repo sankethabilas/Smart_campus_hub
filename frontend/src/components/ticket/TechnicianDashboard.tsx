@@ -359,7 +359,9 @@ const TechnicianDashboard: React.FC<TechnicianDashboardProps> = () => {
                         <div className="space-y-2">
                           {attachments.map((attachment) => (
                             <div key={attachment.id} className="bg-gray-50 p-3 rounded border border-gray-200">
-                              <p className="text-xs font-medium text-gray-700">{attachment.fileName}</p>
+                              <a href={attachment.filePath} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                <p className="text-xs font-medium text-blue-600">{attachment.fileName}</p>
+                              </a>
                               <p className="text-xs text-gray-500">{new Date(attachment.uploadedAt).toLocaleDateString()}</p>
                               {attachment.filePath && (
                                 <img

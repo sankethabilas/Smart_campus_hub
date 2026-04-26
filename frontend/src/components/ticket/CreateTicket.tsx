@@ -799,7 +799,9 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
                             {ticketAttachments[ticket.id].map((attachment) => (
                               <div key={attachment.id} className="flex items-center justify-between bg-gray-50 p-3 rounded border border-gray-200">
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-700 truncate">{attachment.fileName}</p>
+                                  <a href={attachment.filePath} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                    <p className="text-sm font-medium text-blue-600 truncate">{attachment.fileName}</p>
+                                  </a>
                                   <p className="text-xs text-gray-500">{new Date(attachment.uploadedAt).toLocaleDateString()}</p>
                                 </div>
                                 <button
@@ -982,27 +984,6 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
           )}
         </div>
 
-        {/* Navigation */}
-        <div className="mt-8 flex flex-wrap gap-4 justify-center">
-          <button
-            onClick={() => setCurrentPage("technician-dashboard")}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            📊 Technician Dashboard
-          </button>
-          <button
-            onClick={() => setCurrentPage("ticket-admin")}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            ⚙️ Admin Dashboard
-          </button>
-          <button
-            onClick={() => setCurrentPage("home")}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            🏠 Home
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -60,7 +60,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/reject").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/status").hasAnyRole("ADMIN", "TECHNICIAN")
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/resolve").hasAnyRole("ADMIN", "TECHNICIAN")
+                        .requestMatchers(HttpMethod.PUT, "/api/tickets/*/comments/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/tickets/*/comments/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/tickets/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
