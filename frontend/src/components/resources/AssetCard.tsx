@@ -1,7 +1,6 @@
 import React from 'react';
 import { FlaskConical, DoorOpen, Cpu, Edit, Trash2, Eye } from 'lucide-react';
 import type { Asset } from '../../services/assetService';
-import { useLocations } from '../../hooks/useLocations';
 
 interface AssetCardProps {
   asset: Asset;
@@ -13,9 +12,6 @@ interface AssetCardProps {
 }
 
 export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, onDelete, onBook, isAdminView }) => {
-  const locations = useLocations();
-  const locationName = locations[asset.locationId];
-
   const getIcon = () => {
     switch (asset.type) {
       case 'LAB': return <FlaskConical className="w-6 h-6 text-violet-500" />;
@@ -70,7 +66,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, on
           {asset.name}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
-          Location: {locationName || `ID: ${asset.locationId}`}
+          Location ID: {asset.locationId}
         </p>
 
         <div className="space-y-1.5">

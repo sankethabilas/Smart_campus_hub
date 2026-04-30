@@ -1,5 +1,6 @@
 import { Building2, Moon, Sun, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 
 
@@ -7,7 +8,17 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isLoggedIn = !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token;
+
+  let userRole = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      // @ts-ignore
+      userRole = decoded.role;
+    } catch {}
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -17,10 +28,10 @@ export default function Navbar() {
     // Merged links: Using 'page' for the state and 'path' for the router
     // Show dashboard link based on role
     const navLinks = [
-        { name: 'Home', page: 'home', path: '/' },
-        { name: 'Facilities', page: 'resources', path: '/resources' },
-        { name: 'Bookings', page: 'bookings', path: '/bookings' },
-        { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
+      { name: 'Home', page: 'home', path: '/' },
+      { name: 'Facilities', page: 'resources', path: '/resources' },
+      { name: 'Bookings', page: 'bookings', path: '/bookings' },
+      { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
     ];
     if (isLoggedIn && userRole) {
       if (userRole === 'ADMIN') {
