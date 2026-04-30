@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, FlaskConical, DoorOpen, Cpu, Calendar, Users, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import type { Asset } from '../../services/assetService';
-import { useLocations } from '../../hooks/useLocations';
 
 interface AssetDetailModalProps {
   asset: Asset;
@@ -17,9 +16,6 @@ const formatDate = (dt: string | undefined) => {
 };
 
 export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClose }) => {
-  const locations = useLocations();
-  const locationName = locations[asset.locationId];
-
   // Close on Escape key
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -128,8 +124,8 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
           <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
             <MapPin className="w-5 h-5 text-indigo-500 shrink-0" />
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Location</p>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">{locationName || `ID: ${asset.locationId}`}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Location ID</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">{asset.locationId}</p>
             </div>
           </div>
 

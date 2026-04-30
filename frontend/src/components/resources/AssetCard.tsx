@@ -1,7 +1,6 @@
 import React from 'react';
 import { FlaskConical, DoorOpen, Cpu, Edit, Trash2, Eye } from 'lucide-react';
 import type { Asset } from '../../services/assetService';
-import { useLocations } from '../../hooks/useLocations';
 
 interface AssetCardProps {
   asset: Asset;
@@ -13,9 +12,6 @@ interface AssetCardProps {
 }
 
 export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, onDelete, onBook, isAdminView }) => {
-  const locations = useLocations();
-  const locationName = locations[asset.locationId];
-
   const getIcon = () => {
     switch (asset.type) {
       case 'LAB': return <FlaskConical className="w-6 h-6 text-violet-500" />;
@@ -70,7 +66,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, on
           {asset.name}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
-          Location: {locationName || `ID: ${asset.locationId}`}
+          Location ID: {asset.locationId}
         </p>
 
         <div className="space-y-1.5">
@@ -91,10 +87,21 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, onEdit, on
       <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-white via-white to-transparent dark:from-gray-800 dark:via-gray-800 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-end gap-2">
         {onBook && (
           <button 
-            className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors mr-auto shadow-sm"
-            onClick={(e) => { e.stopPropagation(); onBook(asset); }}
+            className={`px-3 py-1.5 text-sm font-medium text-white rounded-lg transition-colors mr-auto shadow-sm ${
+              asset.status === 'OUT_OF_SERVICE' 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (asset.status !== 'OUT_OF_SERVICE') {
+                onBook(asset); 
+              }
+            }}
+            disabled={asset.status === 'OUT_OF_SERVICE'}
+            title={asset.status === 'OUT_OF_SERVICE' ? 'Resource is currently out of service' : 'Book this resource'}
           >
-            Book Now
+            {asset.status === 'OUT_OF_SERVICE' ? 'Unavailable' : 'Book Now'}
           </button>
         )}
         <button 

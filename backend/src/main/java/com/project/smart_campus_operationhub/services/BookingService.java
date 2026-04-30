@@ -29,6 +29,10 @@ public class BookingService {
         Asset asset = assetRepository.findById(request.getAssetId())
                 .orElseThrow(() -> new RuntimeException("Resource not found"));
 
+        if ("OUT_OF_SERVICE".equalsIgnoreCase(asset.getStatus())) {
+            throw new RuntimeException("Resource is currently out of service and cannot be booked");
+        }
+
         // 2. Validate Capacity
         if (request.getHeadcount() != null && asset.getCapacity() != null) {
             if (request.getHeadcount() > asset.getCapacity()) {
