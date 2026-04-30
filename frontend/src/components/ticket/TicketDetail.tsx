@@ -226,7 +226,9 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) => {
                 {attachments.map((attachment) => (
                   <div key={attachment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                     <div>
-                      <p className="font-medium text-gray-800">{attachment.fileName}</p>
+                      <a href={attachment.filePath} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                        <p className="font-medium text-blue-600">{attachment.fileName}</p>
+                      </a>
                       <p className="text-sm text-gray-600">
                         Type: {attachment.fileType} • Uploaded by User {attachment.uploadedById} •{" "}
                         {new Date(attachment.uploadedAt).toLocaleDateString()}

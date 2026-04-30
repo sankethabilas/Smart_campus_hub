@@ -1,12 +1,9 @@
 import { Building2, Moon, Sun, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-interface NavbarProps {
-  isAdminMode: boolean;
-  onToggleAdmin: () => void;
-}
 
-export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
+
+export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,12 +15,22 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
   };
 
     // Merged links: Using 'page' for the state and 'path' for the router
+    // Show dashboard link based on role
     const navLinks = [
         { name: 'Home', page: 'home', path: '/' },
         { name: 'Facilities', page: 'resources', path: '/resources' },
         { name: 'Bookings', page: 'bookings', path: '/bookings' },
         { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
     ];
+    if (isLoggedIn && userRole) {
+      if (userRole === 'ADMIN') {
+        navLinks.unshift({ name: 'Admin Dashboard', page: 'admin-dashboard', path: '/admin-dashboard' });
+      } else if (userRole === 'TECHNICIAN') {
+        navLinks.unshift({ name: 'Technician Dashboard', page: 'technician-dashboard', path: '/technician-dashboard' });
+      } else {
+        navLinks.unshift({ name: 'User Dashboard', page: 'dashboard', path: '/dashboard' });
+      }
+    }
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
