@@ -773,7 +773,6 @@ const CreateTicket: React.FC<CreateTicketProps> = ({ setCurrentPage }) => {
           )}
         </div>
 
-
       </div>
     </div>
   );

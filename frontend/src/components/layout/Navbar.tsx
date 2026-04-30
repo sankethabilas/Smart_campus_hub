@@ -1,5 +1,6 @@
 import { Building2, Moon, Sun, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 interface NavbarProps {
   isAdminMode: boolean;
@@ -10,7 +11,17 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isLoggedIn = !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token;
+
+  let userRole = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      // @ts-ignore
+      userRole = decoded.role;
+    } catch {}
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -19,10 +30,10 @@ export default function Navbar({ isAdminMode, onToggleAdmin }: NavbarProps) {
 
     // Merged links: Using 'page' for the state and 'path' for the router
     const navLinks = [
-        { name: 'Home', page: 'home', path: '/' },
-        { name: 'Facilities', page: 'resources', path: '/resources' },
-        { name: 'Bookings', page: 'bookings', path: '/bookings' },
-        { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
+      { name: 'Home', page: 'home', path: '/' },
+      { name: 'Facilities', page: 'resources', path: '/resources' },
+      { name: 'Bookings', page: 'bookings', path: '/bookings' },
+      { name: 'Tickets', page: 'create-ticket', path: '/tickets' },
     ];
 
   return (
